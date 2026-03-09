@@ -394,6 +394,32 @@
             margin-bottom: 0.5rem;
         }
         .micro-retrieval .answer-area { min-height: 60px; }
+        .micro-retrieval .micro-show-btn {
+            margin-top: 0.5rem;
+            background: transparent;
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            padding: 0.3rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .micro-retrieval .micro-show-btn:hover {
+            background: rgba(125, 207, 255, 0.1);
+        }
+        .micro-retrieval .micro-model-answer {
+            display: none;
+            margin-top: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: rgba(125, 207, 255, 0.08);
+            border-left: 3px solid var(--cyan);
+            border-radius: 0 8px 8px 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .micro-retrieval .micro-model-answer.visible { display: block; }
 
         /* === CALIBRATION SUMMARY CHART === */
         .calibration-summary {
@@ -780,6 +806,226 @@
             <p style="margin-top: 1rem;"><strong style="color: var(--purple);">なぜこうなるか:</strong> Gitのコミットハッシュ（SHA-1）は、コミットの内容＋親ポインタ＋メタデータから計算されます。親ポインタがC2→C5に変わるため、同じコード差分でも全く新しいハッシュが生成されます。A1とA1'は「同じ変更内容」だが「異なるコミットオブジェクト」です。</p>
         </div>
 
+        <!-- ===== Mini Lab 1: 基本の rebase を体験 ===== -->
+        <div class="handson-section reveal" style="margin-top: 2rem; border-top: 1px dashed var(--border-accent); padding-top: 1.5rem;">
+            <h3 style="font-family: var(--font-display); font-size: 1.1rem; color: var(--orange); margin-bottom: 0.75rem;">
+                Mini Lab 1: 基本の rebase を体験
+            </h3>
+
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+                Example 1 で学んだ内容を、実際のターミナルで手を動かして確認します。
+            </p>
+
+            <!-- Progress Tracker for Mini Labs -->
+            <div class="exercise-progress reveal" id="exerciseProgressMini">
+                <div class="exercise-dot" id="exDot1" onclick="scrollToExercise(1)">1</div>
+                <div class="exercise-dot" id="exDot2" onclick="scrollToExercise(2)">2</div>
+                <div class="exercise-dot" id="exDot3" onclick="scrollToExercise(3)">3</div>
+                <div class="exercise-dot" id="exDot4" onclick="scrollToExercise(4)">4</div>
+                <div class="exercise-dot" id="exDot5" onclick="scrollToExercise(5)">5</div>
+            </div>
+
+            <!-- Setup -->
+            <div class="setup-block reveal">
+                <h3 style="color: var(--blue); margin-bottom: 0.75rem;">環境セットアップ</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+                    下のスクリプトをコピーして実行すると、練習用の git リポジトリが自動作成されます。
+                    複数ブランチ・コンフリクト・push 済みブランチなど、全演習の素材が含まれます。
+                </p>
+                <div class="command-block" id="setupScript">
+                    <button class="copy-btn" onclick="copySetupScript()">Copy</button>
+<span class="comment"># 練習用ディレクトリを作成して移動</span>
+<span class="prompt">$</span> mkdir -p /tmp/rebase-practice && cd /tmp/rebase-practice
+<span class="prompt">$</span> git init
+
+<span class="comment"># === main ブランチの履歴 ===</span>
+<span class="prompt">$</span> cat > app.py &lt;&lt;'EOF'
+def greet(name):
+    return f"Hello, {name}!"
+
+if __name__ == "__main__":
+    print(greet("World"))
+EOF
+<span class="prompt">$</span> git add app.py && git commit -m "feat: add greet function"
+
+<span class="prompt">$</span> cat > utils.py &lt;&lt;'EOF'
+def validate_name(name):
+    if not name or not isinstance(name, str):
+        raise ValueError("Name must be a non-empty string")
+    return name.strip()
+EOF
+<span class="prompt">$</span> git add utils.py && git commit -m "feat: add validate_name utility"
+
+<span class="comment"># main を進める（validate_name を統合）</span>
+<span class="prompt">$</span> cat > app.py &lt;&lt;'EOF'
+from utils import validate_name
+
+def greet(name):
+    validated = validate_name(name)
+    return f"Hello, {validated}!"
+
+if __name__ == "__main__":
+    print(greet("World"))
+EOF
+<span class="prompt">$</span> git add app.py && git commit -m "refactor: integrate validate_name into greet"
+
+<span class="comment"># === feature/add-farewell（Exercise 1 用）===</span>
+<span class="prompt">$</span> BRANCH_POINT=$(git log --oneline | tail -2 | head -1 | awk '{print $1}')
+<span class="prompt">$</span> git checkout -b feature/add-farewell "$BRANCH_POINT"
+<span class="prompt">$</span> cat >> app.py &lt;&lt;'EOF'
+
+def farewell(name):
+    return f"Goodbye, {name}!"
+EOF
+<span class="prompt">$</span> git add app.py && git commit -m "feat: add farewell function"
+<span class="prompt">$</span> cat > tests.py &lt;&lt;'EOF'
+from app import greet, farewell
+
+def test_greet():
+    assert greet("Alice") == "Hello, Alice!"
+
+def test_farewell():
+    assert farewell("Alice") == "Goodbye, Alice!"
+
+if __name__ == "__main__":
+    test_greet()
+    test_farewell()
+    print("All tests passed!")
+EOF
+<span class="prompt">$</span> git add tests.py && git commit -m "test: add tests for greet and farewell"
+
+<span class="comment"># === feature/add-logger（Exercise 4-5 用: squash 練習）===</span>
+<span class="prompt">$</span> git checkout main
+<span class="prompt">$</span> git checkout -b feature/add-logger
+<span class="prompt">$</span> cat > logger.py &lt;&lt;'EOF'
+import datetime
+
+def log(message):
+    timestamp = datetime.datetime.now().isoformat()
+    return f"[{timestamp}] {message}"
+
+def log_greet(name):
+    return log(f"Greeted {name}")
+EOF
+<span class="prompt">$</span> git add logger.py && git commit -m "feat: add logger module"
+
+<span class="prompt">$</span> cat > logger.py &lt;&lt;'EOF'
+import datetime
+
+def log(message, level="INFO"):
+    timestamp = datetime.datetime.now().isoformat()
+    return f"[{timestamp}] [{level}] {message}"
+
+def log_greet(name):
+    return log(f"Greeted {name}")
+EOF
+<span class="prompt">$</span> git add logger.py && git commit -m "fix: add level parameter to log"
+
+<span class="prompt">$</span> cat >> logger.py &lt;&lt;'EOF'
+
+def log_error(message):
+    return log(message, level="ERROR")
+EOF
+<span class="prompt">$</span> git add logger.py && git commit -m "feat: add log_error function"
+
+<span class="comment"># === main にさらにコミット追加 ===</span>
+<span class="prompt">$</span> git checkout main
+<span class="prompt">$</span> cat > config.py &lt;&lt;'EOF'
+DEFAULT_GREETING = "Hello"
+DEFAULT_FAREWELL = "Goodbye"
+EOF
+<span class="prompt">$</span> git add config.py && git commit -m "feat: add config module with defaults"
+
+<span class="prompt">$</span> cat > app.py &lt;&lt;'EOF'
+from utils import validate_name
+from config import DEFAULT_GREETING
+
+def greet(name, greeting=None):
+    validated = validate_name(name)
+    g = greeting or DEFAULT_GREETING
+    return f"{g}, {validated}!"
+
+if __name__ == "__main__":
+    print(greet("World"))
+EOF
+<span class="prompt">$</span> git add app.py && git commit -m "refactor: use config defaults in greet"
+
+<span class="comment"># === feature/conflict-demo（Exercise 3 用）===</span>
+<span class="prompt">$</span> CONFIG_BEFORE=$(git log --oneline | tail -4 | head -1 | awk '{print $1}')
+<span class="prompt">$</span> git checkout -b feature/conflict-demo "$CONFIG_BEFORE"
+<span class="prompt">$</span> cat > config.py &lt;&lt;'EOF'
+GREETING_PREFIX = "Hi"
+FAREWELL_PREFIX = "Bye"
+MAX_NAME_LENGTH = 50
+EOF
+<span class="prompt">$</span> git add config.py && git commit -m "feat: add config with different naming"
+<span class="prompt">$</span> cat >> config.py &lt;&lt;'EOF'
+
+DEBUG_MODE = False
+EOF
+<span class="prompt">$</span> git add config.py && git commit -m "feat: add debug mode to config"
+
+<span class="prompt">$</span> git checkout main
+<span class="prompt">$</span> echo "Setup complete! Ready for exercises."
+<span class="prompt">$</span> git log --oneline --graph --all
+                </div>
+            </div>
+
+            <!-- ===== Exercise 1: Basic rebase ===== -->
+            <div class="exercise-card reveal" id="exercise1">
+                <span class="exercise-badge basic">Basic</span>
+                <h4 style="color: var(--green);">Exercise 1: 基本の rebase &mdash; 遅れたブランチを最新化</h4>
+
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+                    <code>feature/add-farewell</code> は古いコミットから分岐しています。
+                    main が先に進んだので、rebase でブランチの起点を最新の main に移動します。
+                </p>
+
+                <ol class="exercise-steps">
+                    <li>まず現状を確認する</li>
+                </ol>
+                <div class="command-block">
+<span class="prompt">$</span> git log --oneline --graph --all
+<span class="prompt">$</span> git checkout feature/add-farewell
+<span class="prompt">$</span> git log --oneline
+<span class="comment"># feature のコミットハッシュをメモしておく</span>
+                </div>
+
+                <ol class="exercise-steps" start="2">
+                    <li>rebase を実行する</li>
+                </ol>
+                <div class="command-block">
+<span class="prompt">$</span> git rebase main
+                </div>
+
+                <ol class="exercise-steps" start="3">
+                    <li>結果を確認する</li>
+                </ol>
+                <div class="command-block">
+<span class="prompt">$</span> git log --oneline --graph --all
+<span class="prompt">$</span> git log --oneline
+<span class="comment"># コミットハッシュが変わっていることを確認</span>
+                </div>
+
+                <div class="check-point">
+                    <strong>理解チェック:</strong> コミットハッシュが変わったのはなぜ？
+                    変更内容（diff）は同じなのに、ハッシュが異なる理由を「親ポインタ」の観点で考えてみてください。
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <textarea class="answer-area" id="ex1Check" placeholder="コミットハッシュが変わる理由を書いてみてください..." style="min-height: 60px;"></textarea>
+                    <button class="submit-btn" onclick="checkExercise(1)">確認する</button>
+                    <div class="feedback-panel" id="ex1Feedback">
+                        <div class="feedback-phase elaborated">
+                            <strong>解説:</strong> Git のコミットハッシュ（SHA-1）は、変更内容だけでなく「親コミットのハッシュ」も含めて計算されます。
+                            rebase で親が変わる（古い main → 新しい main の先頭）ため、同じ diff でもハッシュが変わります。
+                            これが「rebase は履歴を書き換える」と言われる理由です。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Worked Example 2: 危険なケース (フェードアウト: 手続き的トピック用) -->
         <div class="card reveal">
             <h3 style="color: var(--red);">Example 2: 公開ブランチRebaseの破壊的影響</h3>
@@ -816,11 +1062,371 @@
             <p style="margin-top: 0.5rem; padding: 0.75rem; background: rgba(247, 118, 142, 0.1); border-radius: 8px; border-left: 3px solid var(--red);"><strong>核心:</strong> 公開済みコミットのハッシュは「社会契約」。それを破ると、そのコミットに基づく全員の作業が破壊されます。これは「気をつければ大丈夫」な問題ではなく、データ構造レベルの矛盾です。</p>
         </div>
 
+        <!-- ===== Mini Lab 2: push 済みブランチの rebase の危険性を体験 ===== -->
+        <div class="handson-section reveal" style="margin-top: 2rem; border-top: 1px dashed var(--border-accent); padding-top: 1.5rem;">
+            <h3 style="font-family: var(--font-display); font-size: 1.1rem; color: var(--orange); margin-bottom: 0.75rem;">
+                Mini Lab 2: push 済み rebase の危険性を体験
+            </h3>
+
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+                Example 2 で学んだ「公開ブランチ rebase の破壊的影響」を、実際に体験します。
+                <strong>Mini Lab 1 のセットアップ済み環境を使用します。</strong>
+            </p>
+
+            <div class="exercise-card reveal" id="exercise2">
+                <span class="exercise-badge advanced">Advanced</span>
+                <h4 style="color: var(--red);">Exercise 2: push 済みブランチの rebase がなぜ危険か</h4>
+
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+                    「push 済みのブランチを rebase してはいけない」と言われる理由を、実際に体験します。
+                </p>
+
+                <ol class="exercise-steps">
+                    <li>ローカルに「リモート」を模倣して push する</li>
+                </ol>
+                <div class="command-block">
+<span class="prompt">$</span> git checkout main
+<span class="prompt">$</span> git clone --bare . /tmp/rebase-practice-remote.git
+<span class="prompt">$</span> git remote add origin /tmp/rebase-practice-remote.git
+
+<span class="prompt">$</span> git checkout -b feature/shared-work
+<span class="prompt">$</span> echo "shared work" > shared.txt
+<span class="prompt">$</span> git add shared.txt && git commit -m "feat: shared work"
+<span class="prompt">$</span> git push -u origin feature/shared-work
+
+<span class="comment"># 「他の人の作業」を模倣: main にコミット追加</span>
+<span class="prompt">$</span> git checkout main
+<span class="prompt">$</span> echo "someone else's work" > others.txt
+<span class="prompt">$</span> git add others.txt && git commit -m "feat: someone else's work"
+<span class="prompt">$</span> git push origin main
+                </div>
+
+                <ol class="exercise-steps" start="2">
+                    <li>push 済みのブランチを rebase してみる</li>
+                </ol>
+                <div class="command-block">
+<span class="prompt">$</span> git checkout feature/shared-work
+<span class="prompt">$</span> git rebase main
+
+<span class="comment"># push しようとすると...</span>
+<span class="prompt">$</span> git push
+<span class="output">! [rejected]  feature/shared-work -> feature/shared-work (non-fast-forward)</span>
+<span class="output">error: failed to push some refs</span>
+                </div>
+
+                <div class="warning-box">
+                    <strong>ここで <code>git push --force</code> すると何が起きるか？</strong><br>
+                    リモートの履歴が書き換わり、他の開発者が pull していた旧コミットとの整合性が壊れます。
+                    最悪の場合、他の人の作業が消えます。
+                </div>
+
+                <ol class="exercise-steps" start="3">
+                    <li>安全な代替手段</li>
+                </ol>
+                <div class="command-block">
+<span class="comment"># 選択肢A: --force-with-lease（他の人が push していたら拒否される）</span>
+<span class="prompt">$</span> git push --force-with-lease
+
+<span class="comment"># 選択肢B: rebase を取り消して merge を使う</span>
+<span class="prompt">$</span> git reset --hard origin/feature/shared-work
+<span class="prompt">$</span> git merge main
+                </div>
+
+                <div class="check-point">
+                    <strong>理解チェック:</strong> <code>--force-with-lease</code> は <code>--force</code> とどう違いますか？
+                    「安全」と言われる理由を考えてみてください。
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <textarea class="answer-area" id="ex2Check" placeholder="--force-with-lease が --force より安全な理由は？" style="min-height: 60px;"></textarea>
+                    <button class="submit-btn" onclick="checkExercise(2)">確認する</button>
+                    <div class="feedback-panel" id="ex2Feedback">
+                        <div class="feedback-phase elaborated">
+                            <strong>解説:</strong> <code>--force</code> は無条件にリモートを上書きします。
+                            <code>--force-with-lease</code> は「自分が最後に fetch した時点のリモートの状態」を基準に、
+                            <strong>他の誰かがその間に push していたら拒否</strong>します。<br><br>
+                            つまり <code>--force-with-lease</code> は「自分だけが作業しているブランチなら安全に force push できる」ための安全装置です。
+                            他の開発者が push した変更を意図せず消してしまうリスクを防げます。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- マイクロ検索 -->
         <div class="micro-retrieval reveal">
             <div class="micro-label">Micro Check</div>
             <p style="margin-bottom: 0.5rem;">rebaseで新しいコミットが生成される理由を、一言で説明してください。</p>
             <textarea class="answer-area" placeholder="ここに入力..." rows="2"></textarea>
+            <button class="micro-show-btn" onclick="showMicroAnswer(this)">回答を見る</button>
+            <div class="micro-model-answer">コミットの SHA-1 ハッシュは「親コミットのハッシュ」を含めて計算されるため、rebase で親が変わると同じ変更内容でも異なるハッシュの新しいコミットが生成されます。つまり、rebase は「コミットを移動する」のではなく「同じ差分を持つ別のコミットを新規作成する」操作です。</div>
+        </div>
+
+        <!-- Worked Example 3: コンフリクト解決フロー -->
+        <div class="card reveal">
+            <h3 style="color: var(--yellow);">Example 3: Rebase中のコンフリクトと対処法（--abort / --continue）</h3>
+            <p><strong style="color: var(--yellow);">状況:</strong> featureブランチをmainにrebaseしたところ、同じファイルが両方で変更されていたためコンフリクトが発生しました。</p>
+
+            <p style="margin-top: 1rem;"><strong style="color: var(--purple);">メカニズム:</strong> rebaseはコミットを「1つずつ順番に」再適用します。そのため、各コミットの適用時にコンフリクトが発生する可能性があり、mergeの1回に対してrebaseではコミット数だけ解消が必要になる場合があります。</p>
+
+            <p style="margin-top: 1rem;"><strong style="color: var(--green);">2つの選択肢:</strong></p>
+            <div class="step-indicator">
+                <div class="step-number" style="background: var(--red);">A</div>
+                <div class="step-text"><code>git rebase --abort</code> &mdash; rebaseを完全に中止し、開始前の状態に戻す</div>
+            </div>
+            <p style="margin-left: 2.5rem; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">rebase開始前のブランチポインタが復元されます。途中で生成された新しいコミットはブランチから外れますが、オブジェクトとしてはリポジトリに残り、reflogから参照可能です。つまり「完全に元通り」になります。</p>
+
+            <div class="step-indicator">
+                <div class="step-number" style="background: var(--green);">B</div>
+                <div class="step-text"><code>git rebase --continue</code> &mdash; コンフリクトを解消して次のコミットの再適用を続行</div>
+            </div>
+            <p style="margin-left: 2.5rem; color: var(--text-secondary); font-size: 0.9rem;">コンフリクトしたファイルを手動で修正 → <code>git add</code> でステージ → <code>git rebase --continue</code> で次のコミットへ進みます。全コミットの再適用が完了するまで、このサイクルを繰り返します。</p>
+
+            <p style="margin-top: 1rem; padding: 0.75rem; background: rgba(122, 162, 247, 0.1); border-radius: 8px; border-left: 3px solid var(--blue);"><strong>要点:</strong> --abortは「安全に撤退」、--continueは「前進して完了」。どちらを選んでも元のコミットオブジェクトは消えないため、安心して試行錯誤できます。</p>
+        </div>
+
+        <!-- ===== Mini Lab 3: コンフリクトを伴う rebase ===== -->
+        <div class="handson-section reveal" style="margin-top: 2rem; border-top: 1px dashed var(--border-accent); padding-top: 1.5rem;">
+            <h3 style="font-family: var(--font-display); font-size: 1.1rem; color: var(--orange); margin-bottom: 0.75rem;">
+                Mini Lab 3: コンフリクトを伴う rebase を体験
+            </h3>
+
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+                Example 3 で学んだコンフリクト解決フロー（--abort / --continue）を実践します。
+                <strong>Mini Lab 1 のセットアップ済み環境を使用します。</strong>
+            </p>
+
+            <div class="exercise-card reveal" id="exercise3">
+                <span class="exercise-badge advanced">Advanced</span>
+                <h4 style="color: var(--red);">Exercise 3: コンフリクトを伴う rebase</h4>
+
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+                    <code>feature/conflict-demo</code> と <code>main</code> は両方とも
+                    <code>config.py</code> を作成していますが、内容が異なります。rebase するとコンフリクトが発生します。
+                </p>
+
+                <ol class="exercise-steps">
+                    <li>ブランチに切り替えて diff を確認</li>
+                </ol>
+                <div class="command-block">
+<span class="prompt">$</span> git checkout feature/conflict-demo
+<span class="prompt">$</span> git diff main -- config.py
+                </div>
+
+                <ol class="exercise-steps" start="2">
+                    <li>rebase を実行（コンフリクト発生！）</li>
+                </ol>
+                <div class="command-block">
+<span class="prompt">$</span> git rebase main
+<span class="output">CONFLICT (add/add): Merge conflict in config.py</span>
+<span class="output">error: could not apply xxxxxxx</span>
+                </div>
+
+                <ol class="exercise-steps" start="3">
+                    <li>コンフリクトを解消する</li>
+                </ol>
+                <div class="command-block">
+<span class="comment"># コンフリクト箇所を確認</span>
+<span class="prompt">$</span> cat config.py
+<span class="comment"># &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD (main の内容) と ======= と &gt;&gt;&gt;&gt;&gt;&gt;&gt; (feature の内容) を確認</span>
+<span class="comment"># エディタで config.py を開き、両方の変更を統合する</span>
+<span class="comment"># 例: main の命名を採用しつつ MAX_NAME_LENGTH も追加</span>
+<span class="prompt">$</span> git add config.py
+<span class="prompt">$</span> git rebase --continue
+<span class="comment"># 2つ目のコミットでもコンフリクトが出たら同様に解消</span>
+                </div>
+
+                <div class="warning-box">
+                    <strong>途中でやり直したくなったら:</strong>
+                    <code>git rebase --abort</code> で rebase 開始前の状態に完全に戻れます。安心して試行錯誤してください。
+                </div>
+
+                <div class="check-point">
+                    <strong>理解チェック:</strong> merge のコンフリクト解消は 1 回で済みますが、
+                    rebase では複数回コンフリクトが発生しました。なぜ？
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <textarea class="answer-area" id="ex3Check" placeholder="rebase でコンフリクトが複数回起きる理由は？" style="min-height: 60px;"></textarea>
+                    <button class="submit-btn" onclick="checkExercise(3)">確認する</button>
+                    <div class="feedback-panel" id="ex3Feedback">
+                        <div class="feedback-phase elaborated">
+                            <strong>解説:</strong> rebase は各コミットを 1 つずつ順に再適用します。
+                            feature ブランチに 2 つのコミットがあれば、それぞれの再適用時にコンフリクトが起きる可能性があります。
+                            merge は「最終状態同士」を 1 回だけ比較するので、コンフリクト解消も 1 回です。
+                            これは rebase の「コミット単位の再適用」という本質に直結しています。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Worked Example 4: Interactive Rebase -->
+        <div class="card reveal">
+            <h3 style="color: var(--cyan);">Example 4: Interactive Rebase（git rebase -i）でコミット履歴を整理する</h3>
+            <p><strong style="color: var(--yellow);">状況:</strong> featureブランチに5つのコミットがありますが、そのうち2つはtypo修正、1つはデバッグ用ログの削除です。PRを出す前にこれらを整理して、レビューしやすい履歴にしたいです。</p>
+
+            <p style="margin-top: 1rem;"><strong style="color: var(--green);">コマンド:</strong> <code>git rebase -i main</code>（または <code>git rebase -i HEAD~5</code>）</p>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">エディタが開き、コミットが古い順に一覧表示されます。各コミットの先頭の指示語を変更して操作を指定します:</p>
+
+            <div style="margin-top: 1rem; display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 1rem; font-size: 0.9rem;">
+                <code style="color: var(--green);">pick</code><span style="color: var(--text-secondary);">そのまま使用（デフォルト）</span>
+                <code style="color: var(--yellow);">reword</code><span style="color: var(--text-secondary);">コミットメッセージだけ変更（内容はそのまま）</span>
+                <code style="color: var(--orange);">squash</code><span style="color: var(--text-secondary);">直前のコミットに統合し、メッセージを合成</span>
+                <code style="color: var(--orange);">fixup</code><span style="color: var(--text-secondary);">直前のコミットに統合し、このコミットのメッセージは破棄</span>
+                <code style="color: var(--red);">drop</code><span style="color: var(--text-secondary);">コミットを削除</span>
+            </div>
+
+            <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;"><strong style="color: var(--cyan);">--autosquash:</strong> <code>git commit --fixup &lt;対象コミット&gt;</code> で作成した修正コミットは、<code>git rebase -i --autosquash</code> で自動的に正しい位置に並べ替えられ、fixup指定されます。計画的にコミットを整理する強力な手法です。</p>
+
+            <p style="margin-top: 1rem; padding: 0.75rem; background: rgba(187, 154, 247, 0.1); border-radius: 8px; border-left: 3px solid var(--purple);"><strong>原理:</strong> interactive rebaseも通常のrebaseと同じメカニズム（パッチ抽出→再適用→新ハッシュ生成）で動作します。違いは「どのコミットをどう再適用するか」を対話的に指定できる点だけです。そのため、全ての操作で新しいコミットハッシュが生成されます。</p>
+        </div>
+
+        <!-- ===== Mini Lab 4: interactive rebase を体験 ===== -->
+        <div class="handson-section reveal" style="margin-top: 2rem; border-top: 1px dashed var(--border-accent); padding-top: 1.5rem;">
+            <h3 style="font-family: var(--font-display); font-size: 1.1rem; color: var(--orange); margin-bottom: 0.75rem;">
+                Mini Lab 4: interactive rebase でコミットを整理
+            </h3>
+
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+                Example 4 で学んだ interactive rebase を実践します。squash でコミットを統合し、さらに main に追従させます。
+                <strong>Mini Lab 1 のセットアップ済み環境を使用します。</strong>
+            </p>
+
+            <!-- ===== Exercise 4: squash ===== -->
+            <div class="exercise-card reveal" id="exercise4">
+                <span class="exercise-badge intermediate">Intermediate</span>
+                <h4 style="color: var(--yellow);">Exercise 4: interactive rebase &mdash; コミットを squash で整理</h4>
+
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+                    <code>feature/add-logger</code> には 3 つのコミットがありますが、
+                    最初の 2 つ（logger 追加 + level パラメータ追加）は本来 1 つにまとめるべきです。
+                </p>
+
+                <ol class="exercise-steps">
+                    <li>ブランチに切り替えて現状確認</li>
+                </ol>
+                <div class="command-block">
+<span class="prompt">$</span> git checkout feature/add-logger
+<span class="prompt">$</span> git log --oneline
+<span class="output">aaa1234 feat: add log_error function</span>
+<span class="output">bbb5678 fix: add level parameter to log</span>
+<span class="output">ccc9012 feat: add logger module</span>
+                </div>
+
+                <ol class="exercise-steps" start="2">
+                    <li>直近 3 コミットを interactive rebase</li>
+                </ol>
+                <div class="command-block">
+<span class="prompt">$</span> git rebase -i HEAD~3
+<span class="comment"># エディタが開いたら、2行目の "pick" を "squash"（または "s"）に変更：</span>
+<span class="comment">#   pick ccc9012 feat: add logger module</span>
+<span class="comment">#   squash bbb5678 fix: add level parameter to log    ← ここを変更</span>
+<span class="comment">#   pick aaa1234 feat: add log_error function</span>
+<span class="comment"># 保存して閉じる → コミットメッセージを整理して保存</span>
+                </div>
+
+                <ol class="exercise-steps" start="3">
+                    <li>結果を確認</li>
+                </ol>
+                <div class="command-block">
+<span class="prompt">$</span> git log --oneline
+<span class="comment"># 3 つ → 2 つのコミットに整理されている</span>
+                </div>
+
+                <div class="check-point">
+                    <strong>理解チェック:</strong> squash は「前のコミットに吸収」します。
+                    では、もし 1 行目（一番古いコミット）を squash にしたらどうなるでしょうか？
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <textarea class="answer-area" id="ex4Check" placeholder="1行目を squash にしたらどうなる？" style="min-height: 60px;"></textarea>
+                    <button class="submit-btn" onclick="checkExercise(4)">確認する</button>
+                    <div class="feedback-panel" id="ex4Feedback">
+                        <div class="feedback-phase elaborated">
+                            <strong>解説:</strong> エラーになります。squash は「直前のコミットに吸収」する操作なので、
+                            1 行目（最も古いコミット）には「吸収先」がありません。
+                            Git は <code>error: cannot 'squash' without a previous commit</code> と返します。
+                            これは interactive rebase のリストが「古い順」に並んでいることの理解が鍵です。
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== Exercise 5: rebase to track main ===== -->
+            <div class="exercise-card reveal" id="exercise5">
+                <span class="exercise-badge basic">Basic</span>
+                <h4 style="color: var(--green);">Exercise 5: rebase で main に追従（Exercise 4 の続き）</h4>
+
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+                    Exercise 4 でコミットを整理した <code>feature/add-logger</code> を、
+                    最新の main に rebase します。
+                </p>
+
+                <div class="command-block">
+<span class="prompt">$</span> git log --oneline --graph feature/add-logger main
+<span class="comment"># まだ古い main から分岐していることを確認</span>
+<span class="prompt">$</span> git rebase main
+<span class="prompt">$</span> git log --oneline --graph --all
+<span class="comment"># feature/add-logger が main の先頭から生えている</span>
+                </div>
+
+                <div class="check-point">
+                    <strong>確認:</strong> <code>git log --oneline --graph --all</code> で一直線になっていれば成功です。
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <button class="submit-btn" onclick="checkExercise(5)" style="background: var(--green);">完了</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Worked Example 4b: --onto -->
+        <div class="card reveal">
+            <h3 style="color: var(--cyan);">Example 4b: git rebase --onto（ブランチの付け替え）</h3>
+            <p><strong style="color: var(--yellow);">状況:</strong> feature/Bブランチの上にfeature/Aブランチを作成して作業中。feature/Bの方針が変わり、Bがmainからrebaseされました。feature/AをBの新しい先端に付け替える必要があります。</p>
+
+            <p style="margin-top: 1rem;"><strong style="color: var(--green);">コマンド:</strong> <code>git rebase --onto &lt;新しい基点&gt; &lt;古い基点&gt; &lt;移動するブランチ&gt;</code></p>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">例: <code>git rebase --onto feature/B-new feature/B-old feature/A</code></p>
+            <p style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">通常の <code>git rebase main</code> は「現在のブランチをmainの先端に移動」ですが、<code>--onto</code> は3つの引数で「どこからどこまでのコミットを、どこに付け替えるか」を精密に指定できます。上流ブランチがrebaseで変更された場合の標準的な対処法です。</p>
+        </div>
+
+        <!-- Worked Example 5: チーム開発の運用テクニック -->
+        <div class="card reveal">
+            <h3 style="color: var(--blue);">Example 5: チーム開発でのRebaseとマージ戦略</h3>
+
+            <p style="margin-bottom: 1rem;"><strong style="color: var(--yellow);">実際のチーム開発では、rebaseとmergeを場面に応じて使い分けます。</strong></p>
+
+            <div style="margin-bottom: 1rem;">
+                <p style="font-weight: 600; color: var(--cyan); margin-bottom: 0.25rem;">git pull --rebase</p>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">通常の <code>git pull</code> は fetch + merge ですが、<code>git pull --rebase</code> は fetch + rebase を行います。ローカルのコミットをリモートの最新状態の上に積み直すため、不要なマージコミットを避けて線形な履歴を保てます。個人ブランチの最新同期に最適です。</p>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <p style="font-weight: 600; color: var(--cyan); margin-bottom: 0.25rem;">--force-with-lease（安全なforce push）</p>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">rebase後に <code>git push</code> は拒否されます（リモートと履歴が分岐するため）。<code>git push --force</code> は無条件にリモートを上書きし危険ですが、<code>git push --force-with-lease</code> は「最後にfetchした時点からリモートが変わっていなければ」のみ上書きします。他の人がpushした変更を意図せず消すリスクを防ぐ安全装置です。</p>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <p style="font-weight: 600; color: var(--cyan); margin-bottom: 0.25rem;">Squash Merge</p>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">PRマージ時に squash merge を選択すると、featureブランチの全コミットを1つのコミットに圧縮してmainに統合します。featureブランチ内の試行錯誤（typo修正、デバッグ用コミット等）がmainの履歴に残らず、きれいな履歴を維持できます。</p>
+            </div>
+
+            <div>
+                <p style="font-weight: 600; color: var(--cyan); margin-bottom: 0.25rem;">merge --no-ff（Non-fast-forward merge）</p>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">通常、Gitはfast-forward可能な場合マージコミットを省略しますが、<code>--no-ff</code> を指定すると必ずマージコミットを作成します。「このブランチがいつmainに統合されたか」の記録が残るため、リリース追跡やhotfixの管理に有用です。</p>
+            </div>
+
+            <p style="margin-top: 1rem; padding: 0.75rem; background: rgba(158, 206, 106, 0.1); border-radius: 8px; border-left: 3px solid var(--green);"><strong>使い分けの原則:</strong> 個人ブランチの整理にはrebase / pull --rebase、共有ブランチへの統合にはmerge（squash or --no-ff）、rebase後のpushには--force-with-lease。「履歴の線形性」と「変更の追跡可能性」のバランスが判断基準です。</p>
+        </div>
+
+        <!-- マイクロ検索 -->
+        <div class="micro-retrieval reveal">
+            <div class="micro-label">Micro Check</div>
+            <p style="margin-bottom: 0.5rem;">rebase -i の squash と fixup の違いを一言で説明してください。</p>
+            <textarea class="answer-area" placeholder="ここに入力..." rows="2"></textarea>
+            <button class="micro-show-btn" onclick="showMicroAnswer(this)">回答を見る</button>
+            <div class="micro-model-answer">どちらも前のコミットと統合する操作ですが、<strong>squash</strong> は両方のコミットメッセージを結合してエディタで編集できるのに対し、<strong>fixup</strong> は統合するコミットのメッセージを破棄して前のコミットのメッセージだけを残します。「メッセージを残すか捨てるか」が唯一の違いです。</div>
         </div>
 
         <!-- ============================================
@@ -868,6 +1474,8 @@
             <div class="micro-label">Micro Check</div>
             <p style="margin-bottom: 0.5rem;">この2つの回答の決定的な違いは何だと思いますか？</p>
             <textarea class="answer-area" placeholder="ここに入力..." rows="2"></textarea>
+            <button class="micro-show-btn" onclick="showMicroAnswer(this)">回答を見る</button>
+            <div class="micro-model-answer">暗記者は「rebase = 履歴を綺麗にする」と結果だけを述べるのに対し、理解者は「なぜ綺麗になるのか（コミットの再作成メカニズム）」「どんなトレードオフがあるか（共有ブランチでの危険性）」「どの状況で使い分けるか」まで説明できます。決定的な違いは、操作の<strong>メカニズムとトレードオフ</strong>を理解しているかどうかです。</div>
         </div>
 
         <!-- ============================================
@@ -904,6 +1512,8 @@
             <div class="micro-label">Micro Check</div>
             <p style="margin-bottom: 0.5rem;">上の誤解のうち、自分も持っていたものはありますか？なぜそう思っていましたか？</p>
             <textarea class="answer-area" placeholder="ここに入力..." rows="2"></textarea>
+            <button class="micro-show-btn" onclick="showMicroAnswer(this)">回答を見る</button>
+            <div class="micro-model-answer">多くの人が「rebase は危険だから使わない」と考えがちですが、本当のポイントは「<strong>どこで</strong>危険か」を理解すること。ローカルの未公開ブランチでは安全で有用、公開済みブランチでは他者の履歴を壊す危険がある — この境界線を正しく引けるかが、暗記者と理解者の分岐点です。自分がどの誤解を持っていたかを振り返ることで、理解の穴が見えてきます。</div>
         </div>
 
         <!-- ============================================
@@ -1218,385 +1828,28 @@
         </div>
 
         <!-- ============================================
-             HANDS-ON LAB
+             INTEGRATION LAB
              ============================================ -->
         <div class="handson-section reveal">
             <h2 class="section-header reveal">
-                <span class="section-label" style="color: var(--orange);">Hands-On Lab</span>
-                ローカルで実践：git rebase ハンズオン
+                <span class="section-label" style="color: var(--orange);">Integration Lab</span>
+                総合演習：merge と rebase を使い分ける
             </h2>
 
             <p class="reveal" style="color: var(--text-secondary); margin-bottom: 1.5rem;">
-                ここまでの理解を、実際のターミナルで手を動かして確認します。<br>
-                各演習には「理解チェック」があり、<strong>暗記ではなく原理を使って考える</strong>ことを促します。
+                Mini Lab で個別に練習した知識を統合して、merge と rebase の違いを体感します。<br>
+                <strong>セットアップ済みの環境をそのまま使用します。</strong>
             </p>
 
             <!-- Progress Tracker -->
-            <div class="exercise-progress reveal" id="exerciseProgress">
-                <div class="exercise-dot" id="exDot1" onclick="scrollToExercise(1)">1</div>
-                <div class="exercise-dot" id="exDot2" onclick="scrollToExercise(2)">2</div>
-                <div class="exercise-dot" id="exDot3" onclick="scrollToExercise(3)">3</div>
-                <div class="exercise-dot" id="exDot4" onclick="scrollToExercise(4)">4</div>
-                <div class="exercise-dot" id="exDot5" onclick="scrollToExercise(5)">5</div>
+            <div class="exercise-progress reveal" id="exerciseProgressIntegration">
                 <div class="exercise-dot" id="exDot6" onclick="scrollToExercise(6)">6</div>
             </div>
 
-            <!-- Setup -->
-            <div class="setup-block reveal">
-                <h3 style="color: var(--blue); margin-bottom: 0.75rem;">環境セットアップ</h3>
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
-                    下のスクリプトをコピーして実行すると、練習用の git リポジトリが自動作成されます。
-                    複数ブランチ・コンフリクト・push 済みブランチなど、全演習の素材が含まれます。
-                </p>
-                <div class="command-block" id="setupScript">
-                    <button class="copy-btn" onclick="copySetupScript()">Copy</button>
-<span class="comment"># 練習用ディレクトリを作成して移動</span>
-<span class="prompt">$</span> mkdir -p /tmp/rebase-practice && cd /tmp/rebase-practice
-<span class="prompt">$</span> git init
-
-<span class="comment"># === main ブランチの履歴 ===</span>
-<span class="prompt">$</span> cat > app.py &lt;&lt;'EOF'
-def greet(name):
-    return f"Hello, {name}!"
-
-if __name__ == "__main__":
-    print(greet("World"))
-EOF
-<span class="prompt">$</span> git add app.py && git commit -m "feat: add greet function"
-
-<span class="prompt">$</span> cat > utils.py &lt;&lt;'EOF'
-def validate_name(name):
-    if not name or not isinstance(name, str):
-        raise ValueError("Name must be a non-empty string")
-    return name.strip()
-EOF
-<span class="prompt">$</span> git add utils.py && git commit -m "feat: add validate_name utility"
-
-<span class="comment"># main を進める（validate_name を統合）</span>
-<span class="prompt">$</span> cat > app.py &lt;&lt;'EOF'
-from utils import validate_name
-
-def greet(name):
-    validated = validate_name(name)
-    return f"Hello, {validated}!"
-
-if __name__ == "__main__":
-    print(greet("World"))
-EOF
-<span class="prompt">$</span> git add app.py && git commit -m "refactor: integrate validate_name into greet"
-
-<span class="comment"># === feature/add-farewell（Exercise 1 用）===</span>
-<span class="prompt">$</span> BRANCH_POINT=$(git log --oneline | tail -2 | head -1 | awk '{print $1}')
-<span class="prompt">$</span> git checkout -b feature/add-farewell "$BRANCH_POINT"
-<span class="prompt">$</span> cat >> app.py &lt;&lt;'EOF'
-
-def farewell(name):
-    return f"Goodbye, {name}!"
-EOF
-<span class="prompt">$</span> git add app.py && git commit -m "feat: add farewell function"
-<span class="prompt">$</span> cat > tests.py &lt;&lt;'EOF'
-from app import greet, farewell
-
-def test_greet():
-    assert greet("Alice") == "Hello, Alice!"
-
-def test_farewell():
-    assert farewell("Alice") == "Goodbye, Alice!"
-
-if __name__ == "__main__":
-    test_greet()
-    test_farewell()
-    print("All tests passed!")
-EOF
-<span class="prompt">$</span> git add tests.py && git commit -m "test: add tests for greet and farewell"
-
-<span class="comment"># === feature/add-logger（Exercise 2 用: squash 練習）===</span>
-<span class="prompt">$</span> git checkout main
-<span class="prompt">$</span> git checkout -b feature/add-logger
-<span class="prompt">$</span> cat > logger.py &lt;&lt;'EOF'
-import datetime
-
-def log(message):
-    timestamp = datetime.datetime.now().isoformat()
-    return f"[{timestamp}] {message}"
-
-def log_greet(name):
-    return log(f"Greeted {name}")
-EOF
-<span class="prompt">$</span> git add logger.py && git commit -m "feat: add logger module"
-
-<span class="prompt">$</span> cat > logger.py &lt;&lt;'EOF'
-import datetime
-
-def log(message, level="INFO"):
-    timestamp = datetime.datetime.now().isoformat()
-    return f"[{timestamp}] [{level}] {message}"
-
-def log_greet(name):
-    return log(f"Greeted {name}")
-EOF
-<span class="prompt">$</span> git add logger.py && git commit -m "fix: add level parameter to log"
-
-<span class="prompt">$</span> cat >> logger.py &lt;&lt;'EOF'
-
-def log_error(message):
-    return log(message, level="ERROR")
-EOF
-<span class="prompt">$</span> git add logger.py && git commit -m "feat: add log_error function"
-
-<span class="comment"># === main にさらにコミット追加 ===</span>
-<span class="prompt">$</span> git checkout main
-<span class="prompt">$</span> cat > config.py &lt;&lt;'EOF'
-DEFAULT_GREETING = "Hello"
-DEFAULT_FAREWELL = "Goodbye"
-EOF
-<span class="prompt">$</span> git add config.py && git commit -m "feat: add config module with defaults"
-
-<span class="prompt">$</span> cat > app.py &lt;&lt;'EOF'
-from utils import validate_name
-from config import DEFAULT_GREETING
-
-def greet(name, greeting=None):
-    validated = validate_name(name)
-    g = greeting or DEFAULT_GREETING
-    return f"{g}, {validated}!"
-
-if __name__ == "__main__":
-    print(greet("World"))
-EOF
-<span class="prompt">$</span> git add app.py && git commit -m "refactor: use config defaults in greet"
-
-<span class="comment"># === feature/conflict-demo（Exercise 4 用）===</span>
-<span class="prompt">$</span> CONFIG_BEFORE=$(git log --oneline | tail -4 | head -1 | awk '{print $1}')
-<span class="prompt">$</span> git checkout -b feature/conflict-demo "$CONFIG_BEFORE"
-<span class="prompt">$</span> cat > config.py &lt;&lt;'EOF'
-GREETING_PREFIX = "Hi"
-FAREWELL_PREFIX = "Bye"
-MAX_NAME_LENGTH = 50
-EOF
-<span class="prompt">$</span> git add config.py && git commit -m "feat: add config with different naming"
-<span class="prompt">$</span> cat >> config.py &lt;&lt;'EOF'
-
-DEBUG_MODE = False
-EOF
-<span class="prompt">$</span> git add config.py && git commit -m "feat: add debug mode to config"
-
-<span class="prompt">$</span> git checkout main
-<span class="prompt">$</span> echo "Setup complete! Ready for exercises."
-<span class="prompt">$</span> git log --oneline --graph --all
-                </div>
-            </div>
-
-            <!-- ===== Exercise 1 ===== -->
-            <div class="exercise-card reveal" id="exercise1">
-                <span class="exercise-badge basic">Basic</span>
-                <h4 style="color: var(--green);">Exercise 1: 基本の rebase &mdash; 遅れたブランチを最新化</h4>
-
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
-                    <code>feature/add-farewell</code> は古いコミットから分岐しています。
-                    main が先に進んだので、rebase でブランチの起点を最新の main に移動します。
-                </p>
-
-                <ol class="exercise-steps">
-                    <li>まず現状を確認する</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git log --oneline --graph --all
-<span class="prompt">$</span> git checkout feature/add-farewell
-<span class="prompt">$</span> git log --oneline
-<span class="comment"># feature のコミットハッシュをメモしておく</span>
-                </div>
-
-                <ol class="exercise-steps" start="2">
-                    <li>rebase を実行する</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git rebase main
-                </div>
-
-                <ol class="exercise-steps" start="3">
-                    <li>結果を確認する</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git log --oneline --graph --all
-<span class="prompt">$</span> git log --oneline
-<span class="comment"># コミットハッシュが変わっていることを確認</span>
-                </div>
-
-                <div class="check-point">
-                    <strong>理解チェック:</strong> コミットハッシュが変わったのはなぜ？
-                    変更内容（diff）は同じなのに、ハッシュが異なる理由を「親ポインタ」の観点で考えてみてください。
-                </div>
-
-                <div style="margin-top: 1rem;">
-                    <textarea class="answer-area" id="ex1Check" placeholder="コミットハッシュが変わる理由を書いてみてください..." style="min-height: 60px;"></textarea>
-                    <button class="submit-btn" onclick="checkExercise(1)">確認する</button>
-                    <div class="feedback-panel" id="ex1Feedback">
-                        <div class="feedback-phase elaborated">
-                            <strong>解説:</strong> Git のコミットハッシュ（SHA-1）は、変更内容だけでなく「親コミットのハッシュ」も含めて計算されます。
-                            rebase で親が変わる（古い main → 新しい main の先頭）ため、同じ diff でもハッシュが変わります。
-                            これが「rebase は履歴を書き換える」と言われる理由です。
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ===== Exercise 2 ===== -->
-            <div class="exercise-card reveal" id="exercise2">
-                <span class="exercise-badge intermediate">Intermediate</span>
-                <h4 style="color: var(--yellow);">Exercise 2: interactive rebase &mdash; コミットを squash で整理</h4>
-
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
-                    <code>feature/add-logger</code> には 3 つのコミットがありますが、
-                    最初の 2 つ（logger 追加 + level パラメータ追加）は本来 1 つにまとめるべきです。
-                </p>
-
-                <ol class="exercise-steps">
-                    <li>ブランチに切り替えて現状確認</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git checkout feature/add-logger
-<span class="prompt">$</span> git log --oneline
-<span class="output">aaa1234 feat: add log_error function</span>
-<span class="output">bbb5678 fix: add level parameter to log</span>
-<span class="output">ccc9012 feat: add logger module</span>
-                </div>
-
-                <ol class="exercise-steps" start="2">
-                    <li>直近 3 コミットを interactive rebase</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git rebase -i HEAD~3
-<span class="comment"># エディタが開いたら、2行目の "pick" を "squash"（または "s"）に変更：</span>
-<span class="comment">#   pick ccc9012 feat: add logger module</span>
-<span class="comment">#   squash bbb5678 fix: add level parameter to log    ← ここを変更</span>
-<span class="comment">#   pick aaa1234 feat: add log_error function</span>
-<span class="comment"># 保存して閉じる → コミットメッセージを整理して保存</span>
-                </div>
-
-                <ol class="exercise-steps" start="3">
-                    <li>結果を確認</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git log --oneline
-<span class="comment"># 3 つ → 2 つのコミットに整理されている</span>
-                </div>
-
-                <div class="check-point">
-                    <strong>理解チェック:</strong> squash は「前のコミットに吸収」します。
-                    では、もし 1 行目（一番古いコミット）を squash にしたらどうなるでしょうか？
-                </div>
-
-                <div style="margin-top: 1rem;">
-                    <textarea class="answer-area" id="ex2Check" placeholder="1行目を squash にしたらどうなる？" style="min-height: 60px;"></textarea>
-                    <button class="submit-btn" onclick="checkExercise(2)">確認する</button>
-                    <div class="feedback-panel" id="ex2Feedback">
-                        <div class="feedback-phase elaborated">
-                            <strong>解説:</strong> エラーになります。squash は「直前のコミットに吸収」する操作なので、
-                            1 行目（最も古いコミット）には「吸収先」がありません。
-                            Git は <code>error: cannot 'squash' without a previous commit</code> と返します。
-                            これは interactive rebase のリストが「古い順」に並んでいることの理解が鍵です。
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ===== Exercise 3 ===== -->
-            <div class="exercise-card reveal" id="exercise3">
-                <span class="exercise-badge basic">Basic</span>
-                <h4 style="color: var(--green);">Exercise 3: rebase で main に追従（Exercise 2 の続き）</h4>
-
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
-                    Exercise 2 でコミットを整理した <code>feature/add-logger</code> を、
-                    最新の main に rebase します。
-                </p>
-
-                <div class="command-block">
-<span class="prompt">$</span> git log --oneline --graph feature/add-logger main
-<span class="comment"># まだ古い main から分岐していることを確認</span>
-<span class="prompt">$</span> git rebase main
-<span class="prompt">$</span> git log --oneline --graph --all
-<span class="comment"># feature/add-logger が main の先頭から生えている</span>
-                </div>
-
-                <div class="check-point">
-                    <strong>確認:</strong> <code>git log --oneline --graph --all</code> で一直線になっていれば成功です。
-                </div>
-
-                <div style="margin-top: 1rem;">
-                    <button class="submit-btn" onclick="checkExercise(3)" style="background: var(--green);">完了</button>
-                </div>
-            </div>
-
-            <!-- ===== Exercise 4 ===== -->
-            <div class="exercise-card reveal" id="exercise4">
-                <span class="exercise-badge advanced">Advanced</span>
-                <h4 style="color: var(--red);">Exercise 4: コンフリクトを伴う rebase</h4>
-
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
-                    <code>feature/conflict-demo</code> と <code>main</code> は両方とも
-                    <code>config.py</code> を作成していますが、内容が異なります。rebase するとコンフリクトが発生します。
-                </p>
-
-                <ol class="exercise-steps">
-                    <li>ブランチに切り替えて diff を確認</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git checkout feature/conflict-demo
-<span class="prompt">$</span> git diff main -- config.py
-                </div>
-
-                <ol class="exercise-steps" start="2">
-                    <li>rebase を実行（コンフリクト発生！）</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git rebase main
-<span class="output">CONFLICT (add/add): Merge conflict in config.py</span>
-<span class="output">error: could not apply xxxxxxx</span>
-                </div>
-
-                <ol class="exercise-steps" start="3">
-                    <li>コンフリクトを解消する</li>
-                </ol>
-                <div class="command-block">
-<span class="comment"># コンフリクト箇所を確認</span>
-<span class="prompt">$</span> cat config.py
-<span class="comment"># &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD (main の内容) と ======= と &gt;&gt;&gt;&gt;&gt;&gt;&gt; (feature の内容) を確認</span>
-<span class="comment"># エディタで config.py を開き、両方の変更を統合する</span>
-<span class="comment"># 例: main の命名を採用しつつ MAX_NAME_LENGTH も追加</span>
-<span class="prompt">$</span> git add config.py
-<span class="prompt">$</span> git rebase --continue
-<span class="comment"># 2つ目のコミットでもコンフリクトが出たら同様に解消</span>
-                </div>
-
-                <div class="warning-box">
-                    <strong>途中でやり直したくなったら:</strong>
-                    <code>git rebase --abort</code> で rebase 開始前の状態に完全に戻れます。安心して試行錯誤してください。
-                </div>
-
-                <div class="check-point">
-                    <strong>理解チェック:</strong> merge のコンフリクト解消は 1 回で済みますが、
-                    rebase では複数回コンフリクトが発生しました。なぜ？
-                </div>
-
-                <div style="margin-top: 1rem;">
-                    <textarea class="answer-area" id="ex4Check" placeholder="rebase でコンフリクトが複数回起きる理由は？" style="min-height: 60px;"></textarea>
-                    <button class="submit-btn" onclick="checkExercise(4)">確認する</button>
-                    <div class="feedback-panel" id="ex4Feedback">
-                        <div class="feedback-phase elaborated">
-                            <strong>解説:</strong> rebase は各コミットを 1 つずつ順に再適用します。
-                            feature ブランチに 2 つのコミットがあれば、それぞれの再適用時にコンフリクトが起きる可能性があります。
-                            merge は「最終状態同士」を 1 回だけ比較するので、コンフリクト解消も 1 回です。
-                            これは rebase の「コミット単位の再適用」という本質に直結しています。
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ===== Exercise 5 ===== -->
-            <div class="exercise-card reveal" id="exercise5">
+            <!-- ===== Exercise 6: merge vs rebase comparison ===== -->
+            <div class="exercise-card reveal" id="exercise6">
                 <span class="exercise-badge compare">Compare</span>
-                <h4 style="color: var(--purple);">Exercise 5: merge と rebase の違いを体感する</h4>
+                <h4 style="color: var(--purple);">Exercise 6: merge と rebase の違いを体感する</h4>
 
                 <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
                     <strong>同じ操作を merge と rebase の両方でやって、結果の違いを目で確認する</strong>のが最も効果的な学び方です。
@@ -1660,9 +1913,9 @@ EOF
                 </div>
 
                 <div style="margin-top: 1rem;">
-                    <textarea class="answer-area" id="ex5Check" placeholder="常に rebase を使うべき？ merge を選ぶべき状況は？" style="min-height: 80px;"></textarea>
-                    <button class="submit-btn" onclick="checkExercise(5)">確認する</button>
-                    <div class="feedback-panel" id="ex5Feedback">
+                    <textarea class="answer-area" id="ex6Check" placeholder="常に rebase を使うべき？ merge を選ぶべき状況は？" style="min-height: 80px;"></textarea>
+                    <button class="submit-btn" onclick="checkExercise(6)">確認する</button>
+                    <div class="feedback-panel" id="ex6Feedback">
                         <div class="feedback-phase elaborated">
                             <strong>解説:</strong> 正しくありません。rebase は「履歴を書き換える」ため、
                             <strong>既に push して他の人と共有しているブランチ</strong>では使うべきではありません。
@@ -1675,86 +1928,6 @@ EOF
                             &bull; ローカルの feature ブランチを main の最新に追従させる<br>
                             &bull; PR 前にコミット履歴を整理する（interactive rebase）<br>
                             &bull; まだ push していない自分だけのコミットを整理する
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ===== Exercise 6 ===== -->
-            <div class="exercise-card reveal" id="exercise6">
-                <span class="exercise-badge advanced">Advanced</span>
-                <h4 style="color: var(--red);">Exercise 6: push 済みブランチの rebase がなぜ危険か</h4>
-
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
-                    「push 済みのブランチを rebase してはいけない」と言われる理由を、実際に体験します。
-                </p>
-
-                <ol class="exercise-steps">
-                    <li>ローカルに「リモート」を模倣して push する</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git checkout main
-<span class="prompt">$</span> git clone --bare . /tmp/rebase-practice-remote.git
-<span class="prompt">$</span> git remote add origin /tmp/rebase-practice-remote.git
-
-<span class="prompt">$</span> git checkout -b feature/shared-work
-<span class="prompt">$</span> echo "shared work" > shared.txt
-<span class="prompt">$</span> git add shared.txt && git commit -m "feat: shared work"
-<span class="prompt">$</span> git push -u origin feature/shared-work
-
-<span class="comment"># 「他の人の作業」を模倣: main にコミット追加</span>
-<span class="prompt">$</span> git checkout main
-<span class="prompt">$</span> echo "someone else's work" > others.txt
-<span class="prompt">$</span> git add others.txt && git commit -m "feat: someone else's work"
-<span class="prompt">$</span> git push origin main
-                </div>
-
-                <ol class="exercise-steps" start="2">
-                    <li>push 済みのブランチを rebase してみる</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git checkout feature/shared-work
-<span class="prompt">$</span> git rebase main
-
-<span class="comment"># push しようとすると...</span>
-<span class="prompt">$</span> git push
-<span class="output">! [rejected]  feature/shared-work -> feature/shared-work (non-fast-forward)</span>
-<span class="output">error: failed to push some refs</span>
-                </div>
-
-                <div class="warning-box">
-                    <strong>ここで <code>git push --force</code> すると何が起きるか？</strong><br>
-                    リモートの履歴が書き換わり、他の開発者が pull していた旧コミットとの整合性が壊れます。
-                    最悪の場合、他の人の作業が消えます。
-                </div>
-
-                <ol class="exercise-steps" start="3">
-                    <li>安全な代替手段</li>
-                </ol>
-                <div class="command-block">
-<span class="comment"># 選択肢A: --force-with-lease（他の人が push していたら拒否される）</span>
-<span class="prompt">$</span> git push --force-with-lease
-
-<span class="comment"># 選択肢B: rebase を取り消して merge を使う</span>
-<span class="prompt">$</span> git reset --hard origin/feature/shared-work
-<span class="prompt">$</span> git merge main
-                </div>
-
-                <div class="check-point">
-                    <strong>理解チェック:</strong> <code>--force-with-lease</code> は <code>--force</code> とどう違いますか？
-                    「安全」と言われる理由を考えてみてください。
-                </div>
-
-                <div style="margin-top: 1rem;">
-                    <textarea class="answer-area" id="ex6Check" placeholder="--force-with-lease が --force より安全な理由は？" style="min-height: 60px;"></textarea>
-                    <button class="submit-btn" onclick="checkExercise(6)">確認する</button>
-                    <div class="feedback-panel" id="ex6Feedback">
-                        <div class="feedback-phase elaborated">
-                            <strong>解説:</strong> <code>--force</code> は無条件にリモートを上書きします。
-                            <code>--force-with-lease</code> は「自分が最後に fetch した時点のリモートの状態」を基準に、
-                            <strong>他の誰かがその間に push していたら拒否</strong>します。<br><br>
-                            つまり <code>--force-with-lease</code> は「自分だけが作業しているブランチなら安全に force push できる」ための安全装置です。
-                            他の開発者が push した変更を意図せず消してしまうリスクを防げます。
                         </div>
                     </div>
                 </div>
@@ -1812,6 +1985,13 @@ EOF
     </div>
 
     <script>
+    // === MICRO CHECK ===
+    function showMicroAnswer(btn) {
+        const answer = btn.nextElementSibling;
+        answer.classList.toggle('visible');
+        btn.textContent = answer.classList.contains('visible') ? '回答を隠す' : '回答を見る';
+    }
+
     // === STATE ===
     const state = {
         calibration: { pre: null, mid: null, post: null },
@@ -2000,13 +2180,19 @@ EOF
 
     function copySetupScript() {
         const block = document.getElementById('setupScript');
-        // Extract just the command text (lines starting with $)
         const lines = block.innerText.split('\n');
-        const commands = lines
-            .filter(l => l.trim().startsWith('$'))
-            .map(l => l.trim().replace(/^\$\s*/, ''))
-            .join('\n');
-        navigator.clipboard.writeText(commands).then(() => {
+        // Strip $ prompts and # comments, keep heredoc content and blank lines
+        const script = lines
+            .filter(l => l.trim() !== 'Copy')
+            .map(l => {
+                const t = l.trim();
+                if (t.startsWith('$')) return t.replace(/^\$\s*/, '');
+                if (t.startsWith('#')) return '';
+                return l;
+            })
+            .join('\n')
+            .replace(/\n{3,}/g, '\n\n');
+        navigator.clipboard.writeText(script).then(() => {
             const btn = block.querySelector('.copy-btn');
             btn.textContent = 'Copied!';
             btn.classList.add('copied');
