@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deep Learn: Git Rebase</title>
+    <title>Deep Learn Showcase</title>
     <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&f[]=satoshi@400,500,700&display=swap">
     <style>
-        /* === SOLARIZED OSAKA NIGHT — LEARNING SYSTEM === */
         :root {
             --bg-primary: #1a1b26;
             --bg-secondary: #24283b;
             --bg-tertiary: #292e42;
             --bg-elevated: #414868;
             --bg-card: rgba(36, 40, 59, 0.7);
-            --bg-selection: #283457;
             --text-primary: #c0caf5;
             --text-secondary: #a9b1d6;
             --text-muted: #565f89;
@@ -38,15 +36,11 @@
             --border-accent: rgba(122, 162, 247, 0.3);
             --gradient-blue-purple: linear-gradient(135deg, var(--blue), var(--purple));
             --gradient-cyan-blue: linear-gradient(135deg, var(--cyan), var(--blue));
-            --gradient-green-cyan: linear-gradient(135deg, var(--green), var(--cyan));
-            --gradient-yellow-orange: linear-gradient(135deg, var(--yellow), var(--orange));
-            --gradient-red-purple: linear-gradient(135deg, var(--red), var(--purple));
             --gradient-full: linear-gradient(90deg, var(--blue), var(--cyan), var(--green), var(--yellow), var(--orange), var(--red), var(--purple));
             --font-display: 'Clash Display', sans-serif;
             --font-body: 'Satoshi', sans-serif;
             --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
             --duration-normal: 0.6s;
-            --duration-slow: 1s;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -56,1966 +50,404 @@
             background: var(--bg-primary);
             color: var(--text-primary);
             overflow-x: hidden;
-            line-height: 1.7;
+            min-height: 100vh;
         }
 
-        /* === PROGRESS BAR === */
-        .progress-bar {
-            position: fixed; top: 0; left: 0;
+        /* === DECORATIVE BACKGROUND === */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 30%, var(--blue-subtle) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, var(--purple-glow) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* === GRID BACKGROUND === */
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--border-subtle) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* === TOP BAR === */
+        .top-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
             height: 3px;
             background: var(--gradient-full);
-            width: 0%;
-            z-index: 200;
-            transition: width 0.3s ease;
+            z-index: 100;
         }
 
-        /* === MAIN LAYOUT === */
-        .learning-container {
-            max-width: 800px;
+        /* === MAIN CONTAINER === */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 2rem 1.5rem 4rem;
+            padding: clamp(2rem, 5vw, 4rem);
+            padding-top: clamp(3rem, 8vw, 6rem);
         }
 
-        /* === SECTION HEADERS === */
-        .section-header {
-            font-family: var(--font-display);
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin: 3rem 0 1.5rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid var(--border-accent);
-        }
-        .section-header .section-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: var(--text-muted);
-            display: block;
-            margin-bottom: 0.25rem;
-        }
-
-        /* === PHASE DIVIDER === */
-        .phase-divider {
+        /* === HEADER === */
+        .header {
             text-align: center;
-            margin: 4rem 0;
-            position: relative;
+            margin-bottom: clamp(3rem, 6vw, 5rem);
         }
-        .phase-divider::before {
-            content: '';
-            position: absolute;
-            top: 50%; left: 0; right: 0;
-            height: 1px;
-            background: var(--gradient-full);
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 0.5rem 1.5rem;
+            border-radius: 100px;
+            margin-bottom: 1.5rem;
+            display: inline-flex;
+            color: var(--cyan);
+            border: 1px solid rgba(125, 207, 255, 0.3);
         }
-        .phase-divider span {
-            background: var(--bg-primary);
-            padding: 0 1.5rem;
-            position: relative;
+        .header h1 {
             font-family: var(--font-display);
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            letter-spacing: 0.1em;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+        .gt-blue-purple {
+            background: var(--gradient-blue-purple);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header .subtitle {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: var(--text-secondary);
+            max-width: 550px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        .color-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
+        .color-bar span {
+            width: 40px;
+            height: 5px;
+            border-radius: 3px;
         }
 
-        /* === CARDS === */
+        /* === CONTENT COUNT === */
+        .content-count {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .content-count strong {
+            color: var(--blue);
+            font-weight: 600;
+        }
+
+        /* === CARD GRID === */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* === CONTENT CARD === */
         .card {
             background: var(--bg-card);
-            border: 1px solid var(--border-default);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 0;
             backdrop-filter: blur(10px);
-        }
-        .card h3 {
-            font-family: var(--font-display);
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-        }
-
-        /* === COMPARISON CARDS === */
-        .comparison-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin: 1rem 0;
-        }
-        .comparison-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-default);
-            border-radius: 10px;
-            padding: 1.25rem;
-        }
-        .comparison-card.memorizer {
-            border-color: var(--red);
-            border-left: 3px solid var(--red);
-        }
-        .comparison-card.understander {
-            border-color: var(--green);
-            border-left: 3px solid var(--green);
-        }
-        .comparison-label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 0.5rem;
-        }
-        .comparison-card.memorizer .comparison-label { color: var(--red); }
-        .comparison-card.understander .comparison-label { color: var(--green); }
-
-        @media (max-width: 640px) {
-            .comparison-grid { grid-template-columns: 1fr; }
-        }
-
-        /* === TEXT INPUT === */
-        .answer-area {
-            width: 100%;
-            min-height: 120px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-default);
-            border-radius: 10px;
-            padding: 1rem;
-            color: var(--text-primary);
-            font-family: var(--font-body);
-            font-size: 1rem;
-            line-height: 1.6;
-            resize: vertical;
-            transition: border-color 0.3s;
-        }
-        .answer-area:focus {
-            outline: none;
-            border-color: var(--blue);
-            box-shadow: 0 0 0 3px var(--blue-glow);
-        }
-        .answer-area::placeholder { color: var(--text-muted); }
-
-        /* === SUBMIT BUTTON === */
-        .submit-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-top: 0.75rem;
-            padding: 0.6rem 1.5rem;
-            background: var(--blue);
-            color: var(--text-dark);
-            border: none;
-            border-radius: 8px;
-            font-family: var(--font-body);
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .submit-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
-        .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-        /* === FEEDBACK PANEL === */
-        .feedback-panel {
-            margin-top: 1rem;
+            transition: border-color 0.3s, transform 0.3s var(--ease-out-expo), box-shadow 0.3s;
             overflow: hidden;
-            max-height: 0;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
             opacity: 0;
-            transition: max-height 0.5s var(--ease-out-expo), opacity 0.5s;
+            transform: translateY(30px);
         }
-        .feedback-panel.visible {
-            max-height: 2000px;
+        .card.visible {
             opacity: 1;
+            transform: translateY(0);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo),
+                        border-color 0.3s, box-shadow 0.3s;
         }
-        .feedback-phase {
-            padding: 1rem 1.25rem;
-            border-radius: 10px;
-            margin-bottom: 0.75rem;
-        }
-        .feedback-phase.acknowledge {
-            background: var(--blue-subtle);
-            border-left: 3px solid var(--blue);
-        }
-        .feedback-phase.review-prompt {
-            background: rgba(224, 175, 104, 0.08);
-            border-left: 3px solid var(--yellow);
-        }
-        .feedback-phase.elaborated {
-            background: rgba(158, 206, 106, 0.08);
-            border-left: 3px solid var(--green);
+        .card:hover {
+            border-color: var(--border-default);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
         }
 
-        /* === CALIBRATION UI === */
-        .calibration-scale {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin: 1rem 0;
+        /* Card top accent bar */
+        .card-accent {
+            height: 3px;
+            width: 100%;
         }
-        .calibration-option {
+
+        /* Card body */
+        .card-body {
+            padding: 1.75rem 2rem 2rem;
+        }
+
+        /* Card meta row */
+        .card-meta {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-default);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
+            margin-bottom: 1rem;
         }
-        .calibration-option:hover {
-            border-color: var(--blue);
-            background: var(--bg-tertiary);
-        }
-        .calibration-option.selected {
-            border-color: var(--blue);
-            background: var(--bg-selection);
-            box-shadow: 0 0 0 2px var(--blue-glow);
-        }
-        .calibration-emoji { font-size: 1.5rem; }
-        .calibration-label { font-size: 0.9rem; }
-        .calibration-diff {
-            margin-top: 1rem;
-            padding: 1rem;
-            border-radius: 10px;
-            font-size: 0.9rem;
-        }
-        .calibration-diff.overconfident {
-            background: rgba(247, 118, 142, 0.1);
-            border: 1px solid var(--red);
-            color: var(--red);
-        }
-        .calibration-diff.underconfident {
-            background: rgba(158, 206, 106, 0.1);
-            border: 1px solid var(--green);
-            color: var(--green);
-        }
-        .calibration-diff.well-calibrated {
-            background: rgba(122, 162, 247, 0.1);
-            border: 1px solid var(--blue);
-            color: var(--blue);
-        }
-
-        /* === WHY x3 STEP UI === */
-        .why-chain {
-            position: relative;
-            padding-left: 2rem;
-        }
-        .why-chain::before {
-            content: '';
-            position: absolute;
-            left: 0.75rem; top: 0; bottom: 0;
-            width: 2px;
-            background: var(--border-default);
-        }
-        .why-step {
-            position: relative;
-            margin-bottom: 1.5rem;
-        }
-        .why-step::before {
-            content: '';
-            position: absolute;
-            left: -1.65rem; top: 0.6rem;
-            width: 12px; height: 12px;
-            border-radius: 50%;
-            background: var(--bg-elevated);
-            border: 2px solid var(--text-muted);
-        }
-        .why-step.completed::before {
-            background: var(--green);
-            border-color: var(--green);
-        }
-        .why-step.active::before {
-            background: var(--blue);
-            border-color: var(--blue);
-            box-shadow: 0 0 8px var(--blue-glow);
-        }
-        .why-step.locked {
-            opacity: 0.4;
-            pointer-events: none;
-        }
-        .why-level-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 0.25rem;
-        }
-
-        /* === TRANSFER DIFFICULTY BADGES === */
-        .difficulty-badge {
-            display: inline-block;
-            padding: 0.2rem 0.6rem;
-            border-radius: 999px;
+        .card-category {
             font-size: 0.7rem;
             font-weight: 600;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            padding: 0.3rem 0.8rem;
+            border-radius: 100px;
         }
-        .difficulty-badge.near { background: var(--green-glow); color: var(--green); }
-        .difficulty-badge.mid { background: var(--yellow-glow); color: var(--yellow); }
-        .difficulty-badge.far { background: var(--red-glow); color: var(--red); }
-
-        /* === WHAT-IF CARD === */
-        .whatif-card {
-            perspective: 1000px;
-            margin-bottom: 1rem;
-        }
-        .whatif-card-inner {
-            background: var(--bg-card);
-            border: 1px solid var(--border-default);
-            border-radius: 12px;
-            padding: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .whatif-card-inner:hover {
-            border-color: var(--purple);
-            box-shadow: 0 0 15px var(--purple-glow);
-        }
-        .whatif-level-label {
-            font-size: 0.7rem;
-            color: var(--purple);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 0.5rem;
-        }
-        .whatif-answer { display: none; }
-        .whatif-card.revealed .whatif-answer { display: block; }
-
-        /* === MICRO-RETRIEVAL === */
-        .micro-retrieval {
-            background: rgba(125, 207, 255, 0.05);
-            border: 1px dashed var(--cyan);
-            border-radius: 10px;
-            padding: 1rem 1.25rem;
-            margin: 1.5rem 0;
-        }
-        .micro-retrieval .micro-label {
+        .card-time {
             font-size: 0.75rem;
-            color: var(--cyan);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 0.5rem;
-        }
-        .micro-retrieval .answer-area { min-height: 60px; }
-
-        /* === CALIBRATION SUMMARY CHART === */
-        .calibration-summary {
-            margin: 2rem 0;
-        }
-        .calibration-bar-chart {
-            display: flex;
-            align-items: flex-end;
-            gap: 1rem;
-            height: 200px;
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--border-default);
-        }
-        .cal-bar-group {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.25rem;
-        }
-        .cal-bar {
-            width: 40px;
-            border-radius: 6px 6px 0 0;
-            transition: height 0.5s var(--ease-out-expo);
-        }
-        .cal-bar.pre { background: var(--blue); opacity: 0.6; }
-        .cal-bar.post { background: var(--green); }
-        .cal-bar-label {
-            font-size: 0.7rem;
             color: var(--text-muted);
-            text-align: center;
-        }
-
-        /* === NEXT STEPS === */
-        .next-steps {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-accent);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-        }
-        .next-steps h3 { color: var(--blue); }
-
-        /* === SVG DIAGRAM === */
-        .diagram-container {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-default);
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-            text-align: center;
-        }
-        .diagram-container svg text {
-            font-family: var(--font-body);
-        }
-
-        /* === STEP INDICATOR (for procedural topics) === */
-        .step-indicator {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        .step-number {
-            width: 28px; height: 28px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.8rem; font-weight: 700;
-            color: var(--text-dark);
-            flex-shrink: 0;
-        }
-        .step-text {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
+            gap: 0.35rem;
         }
 
-        /* === ANIMATIONS === */
-        .reveal {
-            opacity: 0; transform: translateY(20px);
-            transition: opacity var(--duration-normal) var(--ease-out-expo),
-                        transform var(--duration-normal) var(--ease-out-expo);
-        }
-        .reveal.visible { opacity: 1; transform: translateY(0); }
-
-        @media (prefers-reduced-motion: reduce) {
-            .reveal { transition: opacity 0.3s ease; transform: none; }
-        }
-
-        /* === HANDS-ON LAB === */
-        .handson-section {
-            margin-top: 3rem;
-            border-top: 2px solid var(--border-accent);
-            padding-top: 2rem;
-        }
-        .handson-section .section-header {
-            margin-bottom: 0.5rem;
-        }
-        .exercise-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-default);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            backdrop-filter: blur(20px);
-        }
-        .exercise-card h4 {
+        /* Card title */
+        .card h3 {
             font-family: var(--font-display);
-            font-size: 1.1rem;
+            font-size: 1.35rem;
             font-weight: 600;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.6rem;
+            line-height: 1.3;
         }
-        .exercise-card .exercise-badge {
-            display: inline-block;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            padding: 0.2rem 0.6rem;
-            border-radius: 6px;
-            margin-bottom: 0.75rem;
-        }
-        .exercise-badge.basic { background: var(--green-glow); color: var(--green); }
-        .exercise-badge.intermediate { background: var(--yellow-glow); color: var(--yellow); }
-        .exercise-badge.advanced { background: var(--red-glow); color: var(--red); }
-        .exercise-badge.compare { background: var(--purple-glow); color: var(--purple); }
-        .command-block {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-subtle);
-            border-radius: 8px;
-            padding: 1rem 1.25rem;
-            margin: 0.75rem 0;
-            font-family: 'Menlo', 'Consolas', monospace;
-            font-size: 0.82rem;
-            line-height: 1.6;
-            color: var(--text-secondary);
-            overflow-x: auto;
-            position: relative;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-        .command-block .prompt { color: var(--green); user-select: none; }
-        .command-block .comment { color: var(--text-muted); font-style: italic; }
-        .command-block .output { color: var(--text-muted); }
-        .copy-btn {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-default);
-            color: var(--text-muted);
-            font-size: 0.7rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .copy-btn:hover { color: var(--text-primary); border-color: var(--blue); }
-        .copy-btn.copied { color: var(--green); border-color: var(--green); }
-        .exercise-steps {
-            counter-reset: exercise-step;
-            padding: 0;
-            list-style: none;
-        }
-        .exercise-steps li {
-            counter-increment: exercise-step;
-            padding: 0.5rem 0 0.5rem 2.5rem;
-            position: relative;
-            color: var(--text-secondary);
+
+        /* Card description */
+        .card p {
             font-size: 0.9rem;
-        }
-        .exercise-steps li::before {
-            content: counter(exercise-step);
-            position: absolute;
-            left: 0;
-            width: 24px; height: 24px;
-            border-radius: 50%;
-            background: var(--bg-elevated);
-            color: var(--text-primary);
-            font-size: 0.75rem;
-            font-weight: 700;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .check-point {
-            background: rgba(158, 206, 106, 0.06);
-            border: 1px solid rgba(158, 206, 106, 0.2);
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-            margin: 0.75rem 0;
-            font-size: 0.85rem;
-            color: var(--green);
-        }
-        .check-point strong { color: var(--green); }
-        .warning-box {
-            background: rgba(247, 118, 142, 0.06);
-            border: 1px solid rgba(247, 118, 142, 0.2);
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-            margin: 0.75rem 0;
-            font-size: 0.85rem;
-            color: var(--red);
-        }
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-            font-size: 0.85rem;
-        }
-        .comparison-table th {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            padding: 0.6rem 0.75rem;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 2px solid var(--border-accent);
-        }
-        .comparison-table td {
-            padding: 0.6rem 0.75rem;
-            border-bottom: 1px solid var(--border-subtle);
             color: var(--text-secondary);
+            line-height: 1.6;
         }
-        .comparison-table tr:hover td {
-            background: var(--bg-secondary);
-        }
-        .exercise-progress {
+
+        /* Card arrow */
+        .card-arrow {
             display: flex;
+            align-items: center;
             gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
+            margin-top: 1.25rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: gap 0.3s var(--ease-out-expo);
         }
-        .exercise-dot {
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.75rem; font-weight: 700;
-            background: var(--bg-tertiary);
-            border: 2px solid var(--border-default);
+        .card:hover .card-arrow {
+            gap: 0.85rem;
+        }
+        .card-arrow svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.3s var(--ease-out-expo);
+        }
+        .card:hover .card-arrow svg {
+            transform: translateX(3px);
+        }
+
+        /* === COLOR VARIANTS === */
+        .color-blue .card-accent { background: var(--blue); }
+        .color-blue .card-category { color: var(--blue); border: 1px solid rgba(122, 162, 247, 0.3); }
+        .color-blue h3 { color: var(--blue); }
+        .color-blue .card-arrow { color: var(--blue); }
+        .color-blue:hover { box-shadow: 0 12px 40px rgba(122, 162, 247, 0.1); }
+
+        .color-cyan .card-accent { background: var(--cyan); }
+        .color-cyan .card-category { color: var(--cyan); border: 1px solid rgba(125, 207, 255, 0.3); }
+        .color-cyan h3 { color: var(--cyan); }
+        .color-cyan .card-arrow { color: var(--cyan); }
+        .color-cyan:hover { box-shadow: 0 12px 40px rgba(125, 207, 255, 0.1); }
+
+        .color-green .card-accent { background: var(--green); }
+        .color-green .card-category { color: var(--green); border: 1px solid rgba(158, 206, 106, 0.3); }
+        .color-green h3 { color: var(--green); }
+        .color-green .card-arrow { color: var(--green); }
+        .color-green:hover { box-shadow: 0 12px 40px rgba(158, 206, 106, 0.1); }
+
+        .color-purple .card-accent { background: var(--purple); }
+        .color-purple .card-category { color: var(--purple); border: 1px solid rgba(187, 154, 247, 0.3); }
+        .color-purple h3 { color: var(--purple); }
+        .color-purple .card-arrow { color: var(--purple); }
+        .color-purple:hover { box-shadow: 0 12px 40px rgba(187, 154, 247, 0.1); }
+
+        .color-yellow .card-accent { background: var(--yellow); }
+        .color-yellow .card-category { color: var(--yellow); border: 1px solid rgba(224, 175, 104, 0.3); }
+        .color-yellow h3 { color: var(--yellow); }
+        .color-yellow .card-arrow { color: var(--yellow); }
+        .color-yellow:hover { box-shadow: 0 12px 40px rgba(224, 175, 104, 0.1); }
+
+        .color-red .card-accent { background: var(--red); }
+        .color-red .card-category { color: var(--red); border: 1px solid rgba(247, 118, 142, 0.3); }
+        .color-red h3 { color: var(--red); }
+        .color-red .card-arrow { color: var(--red); }
+        .color-red:hover { box-shadow: 0 12px 40px rgba(247, 118, 142, 0.1); }
+
+        .color-orange .card-accent { background: var(--orange); }
+        .color-orange .card-category { color: var(--orange); border: 1px solid rgba(255, 158, 100, 0.3); }
+        .color-orange h3 { color: var(--orange); }
+        .color-orange .card-arrow { color: var(--orange); }
+        .color-orange:hover { box-shadow: 0 12px 40px rgba(255, 158, 100, 0.1); }
+
+        /* === EMPTY STATE === */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
             color: var(--text-muted);
-            cursor: pointer;
-            transition: all 0.2s;
         }
-        .exercise-dot.done {
-            background: var(--green-glow);
-            border-color: var(--green);
-            color: var(--green);
+        .empty-state p {
+            font-size: 1rem;
+            line-height: 1.6;
         }
-        .setup-block {
-            background: linear-gradient(135deg, rgba(122, 162, 247, 0.08), rgba(187, 154, 247, 0.08));
-            border: 1px solid var(--border-accent);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+
+        /* === FOOTER === */
+        .footer {
+            text-align: center;
+            padding: 3rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* === REDUCED MOTION === */
+        @media (prefers-reduced-motion: reduce) {
+            .card {
+                opacity: 1;
+                transform: none;
+                transition: border-color 0.3s, box-shadow 0.3s;
+            }
+            .card:hover {
+                transform: none;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="progress-bar" id="progressBar"></div>
 
-    <div class="learning-container">
+<div class="grid-bg"></div>
+<div class="top-bar"></div>
 
-        <!-- ============================================
-             SECTION 0: ADVANCE ORGANIZER
-             ============================================ -->
-        <header style="text-align: center; padding: 4rem 0 2rem;">
-            <h1 style="font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700; background: var(--gradient-blue-purple); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                Git Rebase
-            </h1>
-            <p style="color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 1rem auto;">
-                チーム開発でブランチ履歴を整理できるようになる
-            </p>
-            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted);">
-                <span>前半: 約10-15分</span>
-                <span>|</span>
-                <span>後半: 約25-35分</span>
-            </div>
-        </header>
-
-        <div class="card reveal">
-            <h3 style="color: var(--cyan);">このトピックを一言で</h3>
-            <p style="font-size: 1.15rem; margin-bottom: 1rem;">Rebaseとは、ブランチの根っこ（基準点）を別の場所に付け替え、その上でコミット群を順番に再構築する操作です。結果として線形で読みやすい履歴を作りますが、公開済みブランチでは他の開発者の作業を破壊してしまう危険性を持つツールです。</p>
-            <h3 style="color: var(--cyan); margin-top: 1rem;">あなたが既に知っていること</h3>
-            <p>Gitコミットの親子関係は家系図のようなものです。Rebaseは「養子に出す」に相当する操作で、血のつながり（パッチ内容）は変わりませんが、法的な親（基準点）が変わり、法的身分（SHA-1ハッシュ）が変わります。Excelで参照元セルを変更すると値が再計算される経験があれば、それと同じ仕組みです。</p>
-            <h3 style="color: var(--cyan); margin-top: 1rem;">なぜこれを学ぶのか</h3>
-            <p>チーム開発では、複数人が同時にブランチを切って作業します。その際、履歴が複雑に絡み合うとバグ調査（git bisect）やコードレビューが困難になります。Rebaseを正しく理解すると、ローカルブランチの整理、PRの読みやすさ向上、mainブランチの品質維持を戦略的に設計できるようになります。「いつ使い、いつ使わないか」の判断ができること ― それがこの学習のゴールです。</p>
+<div class="container">
+    <!-- Header -->
+    <header class="header">
+        <div class="badge">Learning Materials</div>
+        <h1><span class="gt-blue-purple">Deep Learn</span> Showcase</h1>
+        <p class="subtitle">暗記ではなく理解するための学習教材コレクション</p>
+        <div class="color-bar">
+            <span style="background: var(--blue);"></span>
+            <span style="background: var(--cyan);"></span>
+            <span style="background: var(--green);"></span>
+            <span style="background: var(--yellow);"></span>
+            <span style="background: var(--orange);"></span>
+            <span style="background: var(--red);"></span>
+            <span style="background: var(--purple);"></span>
         </div>
-
-        <!-- ============================================
-             SECTION 1: WORKED EXAMPLE (段階的に複数配置 — 手続き的トピック)
-             ============================================ -->
-        <h2 class="section-header reveal">
-            <span class="section-label" style="color: var(--blue);">Section 1</span>
-            Rebaseの仕組みを段階的に理解する
-        </h2>
-
-        <!-- Worked Example 1: 安全なケース -->
-        <div class="card reveal">
-            <h3 style="color: var(--green);">Example 1: ローカルフィーチャーブランチの整理（安全なRebase）</h3>
-            <p><strong style="color: var(--yellow);">状況:</strong> 開発者AさんがmainブランチからFeature/loginブランチを作成。3個のコミット（認証API実装→UIデザイン→テスト追加）を作成中に、mainブランチが他のメンバーの変更で進展しました。</p>
-
-            <!-- SVG図解: Before -->
-            <div class="diagram-container">
-                <svg viewBox="0 0 600 180" width="100%" style="max-width: 560px;">
-                    <!-- Main branch -->
-                    <circle cx="60" cy="50" r="18" fill="#7aa2f7" opacity="0.8"/>
-                    <text x="60" y="55" fill="#15161e" font-size="12" text-anchor="middle" font-weight="bold">C1</text>
-                    <circle cx="140" cy="50" r="18" fill="#7aa2f7" opacity="0.8"/>
-                    <text x="140" y="55" fill="#15161e" font-size="12" text-anchor="middle" font-weight="bold">C2</text>
-                    <circle cx="220" cy="50" r="18" fill="#7aa2f7" opacity="0.8"/>
-                    <text x="220" y="55" fill="#15161e" font-size="12" text-anchor="middle" font-weight="bold">C3</text>
-                    <circle cx="300" cy="50" r="18" fill="#7aa2f7"/>
-                    <text x="300" y="55" fill="#15161e" font-size="12" text-anchor="middle" font-weight="bold">C4</text>
-                    <circle cx="380" cy="50" r="18" fill="#7aa2f7"/>
-                    <text x="380" y="55" fill="#15161e" font-size="12" text-anchor="middle" font-weight="bold">C5</text>
-                    <line x1="78" y1="50" x2="122" y2="50" stroke="#7aa2f7" stroke-width="2"/>
-                    <line x1="158" y1="50" x2="202" y2="50" stroke="#7aa2f7" stroke-width="2"/>
-                    <line x1="238" y1="50" x2="282" y2="50" stroke="#7aa2f7" stroke-width="2"/>
-                    <line x1="318" y1="50" x2="362" y2="50" stroke="#7aa2f7" stroke-width="2"/>
-                    <text x="420" y="55" fill="#7aa2f7" font-size="11" font-weight="bold">main</text>
-
-                    <!-- Feature branch (branching from C2) -->
-                    <line x1="150" y1="65" x2="200" y2="120" stroke="#9ece6a" stroke-width="2"/>
-                    <circle cx="220" cy="130" r="18" fill="#9ece6a"/>
-                    <text x="220" y="135" fill="#15161e" font-size="12" text-anchor="middle" font-weight="bold">A1</text>
-                    <circle cx="320" cy="130" r="18" fill="#9ece6a"/>
-                    <text x="320" y="135" fill="#15161e" font-size="12" text-anchor="middle" font-weight="bold">A2</text>
-                    <circle cx="420" cy="130" r="18" fill="#9ece6a"/>
-                    <text x="420" y="135" fill="#15161e" font-size="12" text-anchor="middle" font-weight="bold">A3</text>
-                    <line x1="238" y1="130" x2="302" y2="130" stroke="#9ece6a" stroke-width="2"/>
-                    <line x1="338" y1="130" x2="402" y2="130" stroke="#9ece6a" stroke-width="2"/>
-                    <text x="470" y="135" fill="#9ece6a" font-size="11" font-weight="bold">feature</text>
-
-                    <text x="300" y="16" fill="#565f89" font-size="12" text-anchor="middle">Before: 分岐した状態</text>
-                </svg>
-            </div>
-
-            <p style="margin-top: 1rem;"><strong style="color: var(--green);">手順:</strong></p>
-            <div class="step-indicator">
-                <div class="step-number" style="background: var(--blue);">1</div>
-                <div class="step-text">共通祖先（C2）を特定する</div>
-            </div>
-            <div class="step-indicator">
-                <div class="step-number" style="background: var(--cyan);">2</div>
-                <div class="step-text">A1, A2, A3 のパッチ（差分）を抽出し、一時ファイルに保存</div>
-            </div>
-            <div class="step-indicator">
-                <div class="step-number" style="background: var(--green);">3</div>
-                <div class="step-text">featureブランチのポインタをC5（mainの先端）にリセット</div>
-            </div>
-            <div class="step-indicator">
-                <div class="step-number" style="background: var(--yellow);">4</div>
-                <div class="step-text">パッチを順に再適用 → A1', A2', A3' が新しいハッシュで生成される</div>
-            </div>
-
-            <!-- SVG図解: After -->
-            <div class="diagram-container">
-                <svg viewBox="0 0 700 100" width="100%" style="max-width: 660px;">
-                    <circle cx="40" cy="50" r="16" fill="#7aa2f7" opacity="0.8"/>
-                    <text x="40" y="55" fill="#15161e" font-size="11" text-anchor="middle" font-weight="bold">C1</text>
-                    <circle cx="110" cy="50" r="16" fill="#7aa2f7" opacity="0.8"/>
-                    <text x="110" y="55" fill="#15161e" font-size="11" text-anchor="middle" font-weight="bold">C2</text>
-                    <circle cx="180" cy="50" r="16" fill="#7aa2f7" opacity="0.8"/>
-                    <text x="180" y="55" fill="#15161e" font-size="11" text-anchor="middle" font-weight="bold">C3</text>
-                    <circle cx="250" cy="50" r="16" fill="#7aa2f7" opacity="0.8"/>
-                    <text x="250" y="55" fill="#15161e" font-size="11" text-anchor="middle" font-weight="bold">C4</text>
-                    <circle cx="320" cy="50" r="16" fill="#7aa2f7"/>
-                    <text x="320" y="55" fill="#15161e" font-size="11" text-anchor="middle" font-weight="bold">C5</text>
-                    <circle cx="400" cy="50" r="16" fill="#9ece6a"/>
-                    <text x="400" y="55" fill="#15161e" font-size="11" text-anchor="middle" font-weight="bold">A1'</text>
-                    <circle cx="480" cy="50" r="16" fill="#9ece6a"/>
-                    <text x="480" y="55" fill="#15161e" font-size="11" text-anchor="middle" font-weight="bold">A2'</text>
-                    <circle cx="560" cy="50" r="16" fill="#9ece6a"/>
-                    <text x="560" y="55" fill="#15161e" font-size="11" text-anchor="middle" font-weight="bold">A3'</text>
-                    <line x1="56" y1="50" x2="94" y2="50" stroke="#7aa2f7" stroke-width="2"/>
-                    <line x1="126" y1="50" x2="164" y2="50" stroke="#7aa2f7" stroke-width="2"/>
-                    <line x1="196" y1="50" x2="234" y2="50" stroke="#7aa2f7" stroke-width="2"/>
-                    <line x1="266" y1="50" x2="304" y2="50" stroke="#7aa2f7" stroke-width="2"/>
-                    <line x1="336" y1="50" x2="384" y2="50" stroke="#9ece6a" stroke-width="2"/>
-                    <line x1="416" y1="50" x2="464" y2="50" stroke="#9ece6a" stroke-width="2"/>
-                    <line x1="496" y1="50" x2="544" y2="50" stroke="#9ece6a" stroke-width="2"/>
-                    <text x="340" y="22" fill="#565f89" font-size="12" text-anchor="middle">After: 線形履歴（新しいハッシュ）</text>
-                    <text x="610" y="55" fill="#9ece6a" font-size="11" font-weight="bold">feature</text>
-                </svg>
-            </div>
-
-            <p style="margin-top: 1rem;"><strong style="color: var(--purple);">なぜこうなるか:</strong> Gitのコミットハッシュ（SHA-1）は、コミットの内容＋親ポインタ＋メタデータから計算されます。親ポインタがC2→C5に変わるため、同じコード差分でも全く新しいハッシュが生成されます。A1とA1'は「同じ変更内容」だが「異なるコミットオブジェクト」です。</p>
-        </div>
-
-        <!-- Worked Example 2: 危険なケース (フェードアウト: 手続き的トピック用) -->
-        <div class="card reveal">
-            <h3 style="color: var(--red);">Example 2: 公開ブランチRebaseの破壊的影響</h3>
-            <p><strong style="color: var(--yellow);">状況:</strong> 開発者BさんがmainにコミットXをpush済み。CさんがそのXをpullし、Xに基づいてコミットYを作成。その後、BさんがmainでコミットXをrebaseしてX'に書き換えてしまった。</p>
-
-            <div class="diagram-container">
-                <svg viewBox="0 0 600 200" width="100%" style="max-width: 560px;">
-                    <!-- Bさんの世界 -->
-                    <text x="20" y="20" fill="#f7768e" font-size="11" font-weight="bold">Bさんの操作:</text>
-                    <circle cx="80" cy="50" r="16" fill="#7aa2f7"/>
-                    <text x="80" y="55" fill="#15161e" font-size="11" text-anchor="middle" font-weight="bold">X</text>
-                    <text x="140" y="55" fill="#f7768e" font-size="18">→</text>
-                    <circle cx="200" cy="50" r="16" fill="#ff9e64"/>
-                    <text x="200" y="55" fill="#15161e" font-size="11" text-anchor="middle" font-weight="bold">X'</text>
-                    <text x="240" y="55" fill="#565f89" font-size="10">rebase!</text>
-                    <text x="300" y="55" fill="#f7768e" font-size="10">+ force push</text>
-
-                    <!-- Cさんの世界 -->
-                    <text x="20" y="100" fill="#9ece6a" font-size="11" font-weight="bold">Cさんのローカル:</text>
-                    <circle cx="80" cy="130" r="16" fill="#7aa2f7"/>
-                    <text x="80" y="135" fill="#15161e" font-size="11" text-anchor="middle" font-weight="bold">X</text>
-                    <line x1="96" y1="130" x2="144" y2="130" stroke="#9ece6a" stroke-width="2"/>
-                    <circle cx="160" cy="130" r="16" fill="#9ece6a"/>
-                    <text x="160" y="135" fill="#15161e" font-size="11" text-anchor="middle" font-weight="bold">Y</text>
-                    <text x="200" y="135" fill="#565f89" font-size="10">← Xが親</text>
-
-                    <!-- 問題 -->
-                    <text x="20" y="175" fill="#f7768e" font-size="11" font-weight="bold">結果: Cさんがpullすると...</text>
-                    <text x="20" y="195" fill="#f7768e" font-size="10">X(消滅) ← Y(孤立) と X'(新) が共存 → 重複・矛盾</text>
-                </svg>
-            </div>
-
-            <p style="margin-top: 0.75rem;"><strong style="color: var(--purple);">メカニズム:</strong> CさんのコミットYの親ポインタは古いXを指しています。BさんがXをX'にrebase→force pushすると、リモートからXが消え、CさんのYは「存在しない親」を指す孤立状態になります。Cさんがpullすると、同じ変更が異なるハッシュで二重に存在する矛盾が発生します。</p>
-            <p style="margin-top: 0.5rem; padding: 0.75rem; background: rgba(247, 118, 142, 0.1); border-radius: 8px; border-left: 3px solid var(--red);"><strong>核心:</strong> 公開済みコミットのハッシュは「社会契約」。それを破ると、そのコミットに基づく全員の作業が破壊されます。これは「気をつければ大丈夫」な問題ではなく、データ構造レベルの矛盾です。</p>
-        </div>
-
-        <!-- マイクロ検索 -->
-        <div class="micro-retrieval reveal">
-            <div class="micro-label">Micro Check</div>
-            <p style="margin-bottom: 0.5rem;">rebaseで新しいコミットが生成される理由を、一言で説明してください。</p>
-            <textarea class="answer-area" placeholder="ここに入力..." rows="2"></textarea>
-        </div>
-
-        <!-- ============================================
-             SECTION 2: CONTRASTING CASES
-             ============================================ -->
-        <h2 class="section-header reveal">
-            <span class="section-label" style="color: var(--blue);">Section 2</span>
-            暗記者と理解者の違い
-        </h2>
-
-        <div class="card reveal">
-            <p style="margin-bottom: 1rem; color: var(--text-secondary);">
-                同じ質問に対する2つの回答を比較してみましょう。何が違うか考えてください。
-            </p>
-            <p style="font-weight: 600; margin-bottom: 1rem;">Q: git rebaseとは何か、簡潔に説明してください。</p>
-            <div class="comparison-grid">
-                <div class="comparison-card memorizer">
-                    <div class="comparison-label">暗記者パターン</div>
-                    <p>git rebaseはブランチを別の基点に移動させ、リニアhistoryを作るコマンドです。git mergeと同じ役割ですが、マージコミットを作らずにきれいな履歴を保ちます。</p>
-                </div>
-                <div class="comparison-card understander">
-                    <div class="comparison-label">理解者パターン</div>
-                    <p>git rebaseは、現在のブランチの各コミットから差分パッチを抽出し、指定された新しい基点に対して「順番に再適用」していく操作です。各コミットは新しいハッシュを持つ新しいオブジェクトとして生成されます。マージと異なり、分岐の痕跡そのものを歴史から消すため、既に他の開発者に共有されたコミットに対しては使用してはいけません。</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- 追加の対比ケース（手続き的トピック向け） -->
-        <div class="card reveal">
-            <p style="font-weight: 600; margin-bottom: 1rem;">Q: git rebaseしたとき、古いコミットはどうなりますか？</p>
-            <div class="comparison-grid">
-                <div class="comparison-card memorizer">
-                    <div class="comparison-label">暗記者パターン</div>
-                    <p>古いコミットは削除されて、新しい場所に移動します。git reflogで見れば復元できます。</p>
-                </div>
-                <div class="comparison-card understander">
-                    <div class="comparison-label">理解者パターン</div>
-                    <p>古いコミットは「削除されない」し「移動もしない」。ブランチポインタが「新しく生成されたコミット群」を指すようになるだけです。rebase後は古いコミットオブジェクトと新しいコミットオブジェクトの両方がリポジトリに存在し、ブランチは後者を指しています。古いコミットに基づいていた他の開発者のブランチがあると、ここで重複が発生します。</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- マイクロ検索 -->
-        <div class="micro-retrieval reveal">
-            <div class="micro-label">Micro Check</div>
-            <p style="margin-bottom: 0.5rem;">この2つの回答の決定的な違いは何だと思いますか？</p>
-            <textarea class="answer-area" placeholder="ここに入力..." rows="2"></textarea>
-        </div>
-
-        <!-- ============================================
-             SECTION 3: ERROR EXPLANATION
-             ============================================ -->
-        <h2 class="section-header reveal">
-            <span class="section-label" style="color: var(--blue);">Section 3</span>
-            よくある誤解と落とし穴
-        </h2>
-
-        <!-- 誤解1 -->
-        <div class="card reveal">
-            <h3 style="color: var(--red);">誤解: 「rebaseは既存のコミットを移動させるだけ」</h3>
-            <p style="margin-bottom: 0.75rem;"><strong>なぜ間違えるか:</strong> ビジュアル表現（図解）が「コミットが枝を移動する」ように見えるため。実際には完全に新しいコミットオブジェクトが生成される仕組みを知らない。</p>
-            <p><strong style="color: var(--green);">正しい理解:</strong> git rebaseは既存のコミットを移動させるのではなく、差分パッチを別の基点に対して「再適用（replay）」し、新しいコミットハッシュを持つ全く新しいコミットオブジェクトを生成します。古いコミットは変わらず存在し、ブランチポインタだけが新しいコミット群を指すようになります。</p>
-        </div>
-
-        <!-- 誤解2 -->
-        <div class="card reveal">
-            <h3 style="color: var(--red);">誤解: 「公開ブランチでrebaseしてはいけないのは慣例」</h3>
-            <p style="margin-bottom: 0.75rem;"><strong>なぜ間違えるか:</strong> ルール自体は知っているが、なぜ「必須ルール」なのか（ハッシュ変更による協調的破損メカニズム）を理解していない。</p>
-            <p><strong style="color: var(--green);">正しい理解:</strong> rebaseで新しいハッシュが生成される → 他の開発者が古いハッシュに基づいて作業している → 重複コミットが発生し、Gitが divergent history と判断 → 強制pushすると全員のコミットが重複する。「気をつければ大丈夫」ではなく、物理的なデータ構造の矛盾です。</p>
-        </div>
-
-        <!-- 誤解3 -->
-        <div class="card reveal">
-            <h3 style="color: var(--red);">誤解: 「rebase -i でrewordしてもコミット自体は変わらない」</h3>
-            <p style="margin-bottom: 0.75rem;"><strong>なぜ間違えるか:</strong> 「編集」という言葉から、元のコミットが変更（modify）されると思い込む。</p>
-            <p><strong style="color: var(--green);">正しい理解:</strong> reword操作でも全く新しいコミットオブジェクトが生成されます。コミットのSHA-1はメッセージも含めて計算されるため、メッセージ変更 = ハッシュ変更 = 新コミット生成です。それ以降の全コミットも連鎖的に新しくなります。</p>
-        </div>
-
-        <!-- マイクロ検索 -->
-        <div class="micro-retrieval reveal">
-            <div class="micro-label">Micro Check</div>
-            <p style="margin-bottom: 0.5rem;">上の誤解のうち、自分も持っていたものはありますか？なぜそう思っていましたか？</p>
-            <textarea class="answer-area" placeholder="ここに入力..." rows="2"></textarea>
-        </div>
-
-        <!-- ============================================
-             PHASE DIVIDER
-             ============================================ -->
-        <div class="phase-divider reveal">
-            <span>UNDERSTANDING VERIFICATION</span>
-        </div>
-
-        <!-- ============================================
-             TEST 1: CALIBRATION (PRE)
-             ============================================ -->
-        <h2 class="section-header reveal">
-            <span class="section-label" style="color: var(--purple);">Test 1 / 7</span>
-            キャリブレーション（事前）
-        </h2>
-
-        <div class="card reveal">
-            <p style="margin-bottom: 1rem;">ここまで学んだ内容について、今の自分の理解度を正直に評価してください。</p>
-            <div class="calibration-scale" id="calibrationPre">
-                <div class="calibration-option" data-level="1" onclick="selectCalibration('pre', 1)">
-                    <span class="calibration-emoji">&#x1F615;</span>
-                    <span class="calibration-label">全く理解していない</span>
-                </div>
-                <div class="calibration-option" data-level="2" onclick="selectCalibration('pre', 2)">
-                    <span class="calibration-emoji">&#x1F614;</span>
-                    <span class="calibration-label">聞いたことはあるが説明できない</span>
-                </div>
-                <div class="calibration-option" data-level="3" onclick="selectCalibration('pre', 3)">
-                    <span class="calibration-emoji">&#x1F610;</span>
-                    <span class="calibration-label">大まかには説明できる</span>
-                </div>
-                <div class="calibration-option" data-level="4" onclick="selectCalibration('pre', 4)">
-                    <span class="calibration-emoji">&#x1F60A;</span>
-                    <span class="calibration-label">詳しく説明でき、応用もある程度できる</span>
-                </div>
-                <div class="calibration-option" data-level="5" onclick="selectCalibration('pre', 5)">
-                    <span class="calibration-emoji">&#x1F604;</span>
-                    <span class="calibration-label">人に教えられるレベルで理解している</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- ============================================
-             TEST 2: EXPLANATION TEST
-             ============================================ -->
-        <h2 class="section-header reveal">
-            <span class="section-label" style="color: var(--purple);">Test 2 / 7</span>
-            説明テスト
-        </h2>
-
-        <div class="card reveal" id="explanationTest">
-            <p style="margin-bottom: 1rem;">git rebaseを、バージョン管理の基本は知っているが rebase は聞いたことがない非エンジニア（営業職や経営層）に説明してください。3分以内で「何ができるのか」「なぜ注意が必要なのか」が伝わるように。</p>
-            <textarea class="answer-area" id="explanationAnswer" placeholder="ここに入力..."></textarea>
-            <button class="submit-btn" onclick="submitExplanation()">回答を提出する</button>
-
-            <!-- 3-Layer Feedback -->
-            <div class="feedback-panel" id="explanationFeedback">
-                <div class="feedback-phase acknowledge" id="expPhase1">
-                    回答を受け付けました。
-                </div>
-                <div class="feedback-phase review-prompt" id="expPhase2" style="display:none;">
-                    自分の回答をもう一度読み返してみてください。「なぜ」を説明できていますか？ 定義の繰り返しになっていませんか？
-                </div>
-                <div class="feedback-phase elaborated" id="expPhase3" style="display:none;">
-                    <div class="comparison-grid">
-                        <div class="comparison-card memorizer">
-                            <div class="comparison-label">暗記者パターン</div>
-                            <p>git rebaseはブランチを別の基点に移動させるコマンドで、git mergeと似ています。マージコミットを作らずにきれいな履歴を保つことができます。たとえば、mainブランチに新しい変更が加わった時に、それを自分の機能ブランチに取り込みたい場合に使います。</p>
-                        </div>
-                        <div class="comparison-card understander">
-                            <div class="comparison-label">理解者パターン</div>
-                            <p>git rebaseは「時間を巻き戻す」操作だと考えてください。例えば、月曜日に「レポート作成ブランチ」を作ったとします。火曜日に会社の「テンプレートアップデート」がmainに入りました。rebaseは「あなたのレポート作業を、火曜日の新テンプレート版に再構築する」操作です。中身は同じですが、新しい土台の上に作り直されます。大切なのは「公開前の個人ブランチだけで使う」こと。他の人が古い版で作業していると二重に見えてしまうからです。</p>
-                        </div>
-                    </div>
-                    <p style="margin-top: 1rem; color: var(--text-secondary);">
-                        暗記者は「見た目をきれいにするツール」として説明しており、理解者は「時間的な基点の再設定と再構築」というメタファーとメカニズムの両立を使い、非専門家も「他の開発者が古い基点で作業していると問題になる理由」を直感的に理解できます。
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- ============================================
-             TEST 3: CALIBRATION (MID)
-             ============================================ -->
-        <h2 class="section-header reveal">
-            <span class="section-label" style="color: var(--purple);">Test 3 / 7</span>
-            キャリブレーション（中間）
-        </h2>
-
-        <div class="card reveal">
-            <p style="margin-bottom: 1rem;">説明テストを終えて、自分の理解度をもう一度評価してください。</p>
-            <div class="calibration-scale" id="calibrationMid">
-                <div class="calibration-option" data-level="1" onclick="selectCalibration('mid', 1)">
-                    <span class="calibration-emoji">&#x1F615;</span>
-                    <span class="calibration-label">全く理解していない</span>
-                </div>
-                <div class="calibration-option" data-level="2" onclick="selectCalibration('mid', 2)">
-                    <span class="calibration-emoji">&#x1F614;</span>
-                    <span class="calibration-label">聞いたことはあるが説明できない</span>
-                </div>
-                <div class="calibration-option" data-level="3" onclick="selectCalibration('mid', 3)">
-                    <span class="calibration-emoji">&#x1F610;</span>
-                    <span class="calibration-label">大まかには説明できる</span>
-                </div>
-                <div class="calibration-option" data-level="4" onclick="selectCalibration('mid', 4)">
-                    <span class="calibration-emoji">&#x1F60A;</span>
-                    <span class="calibration-label">詳しく説明でき、応用もある程度できる</span>
-                </div>
-                <div class="calibration-option" data-level="5" onclick="selectCalibration('mid', 5)">
-                    <span class="calibration-emoji">&#x1F604;</span>
-                    <span class="calibration-label">人に教えられるレベルで理解している</span>
-                </div>
-            </div>
-            <div id="calibrationMidDiff"></div>
-        </div>
-
-        <!-- ============================================
-             TEST 4: WHY x3
-             ============================================ -->
-        <h2 class="section-header reveal">
-            <span class="section-label" style="color: var(--purple);">Test 4 / 7</span>
-            なぜ×3回テスト
-        </h2>
-
-        <div class="card reveal">
-            <p style="margin-bottom: 1rem; color: var(--text-secondary);">
-                1つの事実から「なぜ？」を3段階深掘りします。どこまで答えられるかが理解の深さを示します。
-            </p>
-            <p style="font-weight: 600; margin-bottom: 1.5rem;">事実: Rebaseを実行すると新しいコミットが作成される</p>
-
-            <div class="why-chain" id="whyChain">
-                <div class="why-step active" id="whyStep1">
-                    <div class="why-level-label">Why #1 — メカニズム</div>
-                    <p style="margin-bottom: 0.5rem;">なぜRebaseで新しいコミットが作成されるのですか？</p>
-                    <textarea class="answer-area" id="whyAnswer1" placeholder="メカニズムを説明してください..."></textarea>
-                    <button class="submit-btn" onclick="submitWhy(1)">次へ</button>
-                    <div class="feedback-panel" id="whyFeedback1"></div>
-                </div>
-                <div class="why-step locked" id="whyStep2">
-                    <div class="why-level-label">Why #2 — 条件</div>
-                    <p style="margin-bottom: 0.5rem;">なぜ親ポインタが変わるとハッシュが変わるのですか？</p>
-                    <textarea class="answer-area" id="whyAnswer2" placeholder="条件の必要性を説明してください..."></textarea>
-                    <button class="submit-btn" onclick="submitWhy(2)">次へ</button>
-                    <div class="feedback-panel" id="whyFeedback2"></div>
-                </div>
-                <div class="why-step locked" id="whyStep3">
-                    <div class="why-level-label">Why #3 — 根本原理</div>
-                    <p style="margin-bottom: 0.5rem;">なぜGitはそのような設計になっているのですか？</p>
-                    <textarea class="answer-area" id="whyAnswer3" placeholder="根本的な設計原理を説明してください..."></textarea>
-                    <button class="submit-btn" onclick="submitWhy(3)">回答を見る</button>
-                    <div class="feedback-panel" id="whyFeedback3"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ============================================
-             TEST 5: WHAT-IF
-             ============================================ -->
-        <h2 class="section-header reveal">
-            <span class="section-label" style="color: var(--purple);">Test 5 / 7</span>
-            What-Ifテスト
-        </h2>
-
-        <div class="card reveal">
-            <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">
-                条件を変えたらどうなるか？メカニズムに基づいて考えてください（推測ではなく）。
-            </p>
-
-            <div class="whatif-card" id="whatif1">
-                <div class="whatif-card-inner">
-                    <div class="whatif-level-label">Level 1 — 単一因果</div>
-                    <p style="font-weight: 600; margin-bottom: 0.75rem;">もしあなたがfeature/login-pageでgit rebase mainを実行した後、複数のコンフリクトが出現しました。この時点で「git rebase --abort」を実行すると、何が復元されて、何が復元されないでしょうか？</p>
-                    <textarea class="answer-area" placeholder="メカニズムに基づいて回答してください..."></textarea>
-                    <button class="submit-btn" onclick="revealWhatIf(1)">回答を見る</button>
-                    <div class="whatif-answer feedback-panel" id="whatifAnswer1">
-                        <div class="feedback-phase elaborated">
-                            <p>git rebase --abort実行時点で、rebasing処理の途中で生成された「未完成の新しいコミット群」は削除され、rebase前の「古いブランチポインタ」が復元されます。元々のコミット（rebase前）が復元されるため、コンフリクト前の状態に完全に戻ります。重要なのは「rebase処理中に生成されたコミットはブランチから外れるだけで、オブジェクトとしては削除されない」ということ。reflogから参照できます。</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="whatif-card" id="whatif2">
-                <div class="whatif-card-inner">
-                    <div class="whatif-level-label">Level 2 — 連鎖効果</div>
-                    <p style="font-weight: 600; margin-bottom: 0.75rem;">上のシナリオでabortせず「コンフリクトを解決してgit rebase --continue」した場合、その後のコミットはどのようなハッシュを持つでしょうか？また、このブランチを既にpush済みだった場合、チーム開発ではどのような問題が起きるでしょうか？</p>
-                    <textarea class="answer-area" placeholder="下流への影響を考えてください..."></textarea>
-                    <button class="submit-btn" onclick="revealWhatIf(2)">回答を見る</button>
-                    <div class="whatif-answer feedback-panel" id="whatifAnswer2">
-                        <div class="feedback-phase elaborated">
-                            <p>rebase --continue で完了すると、元々のコミット群（古いハッシュ）と新しく生成されたコミット群（新しいハッシュ）が両方リポジトリに存在します。git push -f でリモートを上書きすると、他の開発者のローカルに残った古いハッシュとリモートの新しいハッシュが矛盾し、彼らのpullが失敗します。同じコード変更が異なるハッシュで重複し、historyが破壊されます。</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="whatif-card" id="whatif3">
-                <div class="whatif-card-inner">
-                    <div class="whatif-level-label">Level 3 — 制約推論</div>
-                    <p style="font-weight: 600; margin-bottom: 0.75rem;">上のチーム開発問題でも「変わらないもの」と「変わるもの」を区別してください。ファイルの内容、コミットハッシュ、コミット数、ブランチの親、他の開発者のコミットのそれぞれについて説明してください。</p>
-                    <textarea class="answer-area" placeholder="変わらないものは何か、なぜか..."></textarea>
-                    <button class="submit-btn" onclick="revealWhatIf(3)">回答を見る</button>
-                    <div class="whatif-answer feedback-panel" id="whatifAnswer3">
-                        <div class="feedback-phase elaborated">
-                            <p><strong>変わらない:</strong> ファイルの最終的な内容は同じ（パッチ内容は保持）。他の開発者が別ブランチで行ったコミットも影響を受けない。<br><strong>変わる:</strong> コミットハッシュが全て新しくなる。ブランチの親チェーンが変わる（元はA→B→C、新しくはmain最新→B'→C'）。<br><strong>影響を受ける人:</strong> このブランチからfork/branch outした人だけ。ローカルで整理するだけなら誰にも影響なし。「誰がこのコミットに依存しているか」が判断基準。</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ============================================
-             TEST 6: TRANSFER TEST（手続き的: 近転移中心、遠転移は軽め）
-             ============================================ -->
-        <h2 class="section-header reveal">
-            <span class="section-label" style="color: var(--purple);">Test 6 / 7</span>
-            転移テスト
-        </h2>
-
-        <!-- 近転移 1 -->
-        <div class="card reveal">
-            <span class="difficulty-badge near">近転移</span>
-            <p style="margin: 0.75rem 0; font-weight: 600;">あなたのfeature/user-authブランチで10個のコミットを作成しましたが、そのうち3つが「デバッグ用」「typo修正」「リンター修正」のコミットです。mainにマージする前に、これらを対応する実装コミットに統合したいとします。どのコマンドを使い、どのような手順で実行しますか？</p>
-            <textarea class="answer-area" placeholder="同じ原理を少し違う文脈で使ってみてください..."></textarea>
-            <button class="submit-btn" onclick="revealTransfer('near')">回答を見る</button>
-            <div class="feedback-panel" id="transferNearFeedback">
-                <div class="feedback-phase elaborated">
-                    <p><strong>git rebase -i main</strong> を使用します。interactive rebaseで、修正コミットをsquashコマンドで対応する実装コミットに統合します。または、事前に git commit --fixup で修正コミットを作成しておけば、git rebase -i --autosquash main で自動的に整理されます。これは「コミットの論理的なまとまりを保ちながら、技術的なノイズを除去する」という原理の直接的な適用です。</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- 近転移 2 -->
-        <div class="card reveal">
-            <span class="difficulty-badge near">近転移</span>
-            <p style="margin: 0.75rem 0; font-weight: 600;">feature/paymentブランチで作業中、mainブランチに新しい変更が入りました。あなたのブランチをmainの最新に同期したいです（PRはまだ未作成）。手順を説明してください。</p>
-            <textarea class="answer-area" placeholder="同じ原理を少し違う文脈で使ってみてください..."></textarea>
-            <button class="submit-btn" onclick="revealTransfer('near2')">回答を見る</button>
-            <div class="feedback-panel" id="transferNear2Feedback">
-                <div class="feedback-phase elaborated">
-                    <p>(1) git fetch origin で最新のmainを取得、(2) git rebase origin/main で自分のコミットを再適用、(3) コンフリクトがあれば修正して git add → git rebase --continue、(4) git push --force-with-lease で更新。まだ共有していないブランチのため安全です。「ベースとなる土台を最新状態に同期させながら、自分の変更の独立性を保つ」という原理の適用です。</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- 中転移 -->
-        <div class="card reveal">
-            <span class="difficulty-badge mid">中転移</span>
-            <p style="margin: 0.75rem 0; font-weight: 600;">2つのfeatureブランチ（A: feature/notifications、B: feature/analytics）を開発していて、AはBの上にブランチを切っています。Bの実装に方針変更が入り、Bをmainからrebaseし直しました。Aの状態はどうなり、どう対応しますか？</p>
-            <textarea class="answer-area" placeholder="隣接する領域での適用を考えてみてください..."></textarea>
-            <button class="submit-btn" onclick="revealTransfer('mid')">回答を見る</button>
-            <div class="feedback-panel" id="transferMidFeedback">
-                <div class="feedback-phase elaborated">
-                    <p>Aのコミット群はBの古いハッシュに依存しているため、Bのrebase後にAは「孤立した」状態になります。対応：(1) Bをrebase完了後、AをBの新しい先端で git rebase --onto B-new B-old A として再構築、(2) またはAを一度退避してからBの上でrebuild。これは「upstream依存ブランチの変更が下流に波及する」という原理の拡張で、単一ブランチのrebaseから複数ブランチ間の依存関係管理への転移です。</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- 遠転移（軽め — 手続き的トピック向け） -->
-        <div class="card reveal">
-            <span class="difficulty-badge far">遠転移</span>
-            <p style="margin: 0.75rem 0; font-weight: 600;">新しいウェブアプリプロジェクトで「mainは常に本番対応状態」という原則があります。複数メンバーが毎日機能を追加し、バグ報告時はhotfixとして即日本番反映が必要です。git rebaseとmergeをどう使い分けるポリシーを設計しますか？</p>
-            <textarea class="answer-area" placeholder="全く異なる領域でのアナロジーを考えてみてください..."></textarea>
-            <button class="submit-btn" onclick="revealTransfer('far')">回答を見る</button>
-            <div class="feedback-panel" id="transferFarFeedback">
-                <div class="feedback-phase elaborated">
-                    <p><strong>推奨ポリシー:</strong> (1) feature/*ブランチ：ローカルで頻繁にgit pull --rebaseで最新同期（線形の個人履歴）、(2) PRレビュー中：rebaseしない（履歴の可追跡性のため）、(3) PRマージ時：squash mergeまたはrebase後にmerge（developの履歴を整理）、(4) develop→main：merge --no-ffでマージコミット残す（release trackのため）、(5) hotfix：mainから切り、完了後はmergeでmainとdevelopの両方に統合。「履歴の線形性」と「変更の追跡可能性」のバランスを取り、hotfixの双方向統合という運用制約を組み込んだ設計です。</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- ============================================
-             TEST 7: CALIBRATION (POST)
-             ============================================ -->
-        <h2 class="section-header reveal">
-            <span class="section-label" style="color: var(--purple);">Test 7 / 7</span>
-            キャリブレーション（事後総括）
-        </h2>
-
-        <div class="card reveal">
-            <p style="margin-bottom: 1rem;">全てのテストを終えて、最終的な自己評価をしてください。</p>
-            <div class="calibration-scale" id="calibrationPost">
-                <div class="calibration-option" data-level="1" onclick="selectCalibration('post', 1)">
-                    <span class="calibration-emoji">&#x1F615;</span>
-                    <span class="calibration-label">全く理解していない</span>
-                </div>
-                <div class="calibration-option" data-level="2" onclick="selectCalibration('post', 2)">
-                    <span class="calibration-emoji">&#x1F614;</span>
-                    <span class="calibration-label">聞いたことはあるが説明できない</span>
-                </div>
-                <div class="calibration-option" data-level="3" onclick="selectCalibration('post', 3)">
-                    <span class="calibration-emoji">&#x1F610;</span>
-                    <span class="calibration-label">大まかには説明できる</span>
-                </div>
-                <div class="calibration-option" data-level="4" onclick="selectCalibration('post', 4)">
-                    <span class="calibration-emoji">&#x1F60A;</span>
-                    <span class="calibration-label">詳しく説明でき、応用もある程度できる</span>
-                </div>
-                <div class="calibration-option" data-level="5" onclick="selectCalibration('post', 5)">
-                    <span class="calibration-emoji">&#x1F604;</span>
-                    <span class="calibration-label">人に教えられるレベルで理解している</span>
-                </div>
-            </div>
-
-            <!-- Summary Chart -->
-            <div class="calibration-summary" id="calibrationSummary" style="display:none;">
-                <h3 style="color: var(--blue); margin-bottom: 1rem;">あなたの自己評価の推移</h3>
-                <div class="calibration-bar-chart" id="calChart"></div>
-                <div id="calibrationAnalysis" style="margin-top: 1rem;"></div>
-            </div>
-        </div>
-
-        <!-- ============================================
-             HANDS-ON LAB
-             ============================================ -->
-        <div class="handson-section reveal">
-            <h2 class="section-header reveal">
-                <span class="section-label" style="color: var(--orange);">Hands-On Lab</span>
-                ローカルで実践：git rebase ハンズオン
-            </h2>
-
-            <p class="reveal" style="color: var(--text-secondary); margin-bottom: 1.5rem;">
-                ここまでの理解を、実際のターミナルで手を動かして確認します。<br>
-                各演習には「理解チェック」があり、<strong>暗記ではなく原理を使って考える</strong>ことを促します。
-            </p>
-
-            <!-- Progress Tracker -->
-            <div class="exercise-progress reveal" id="exerciseProgress">
-                <div class="exercise-dot" id="exDot1" onclick="scrollToExercise(1)">1</div>
-                <div class="exercise-dot" id="exDot2" onclick="scrollToExercise(2)">2</div>
-                <div class="exercise-dot" id="exDot3" onclick="scrollToExercise(3)">3</div>
-                <div class="exercise-dot" id="exDot4" onclick="scrollToExercise(4)">4</div>
-                <div class="exercise-dot" id="exDot5" onclick="scrollToExercise(5)">5</div>
-                <div class="exercise-dot" id="exDot6" onclick="scrollToExercise(6)">6</div>
-            </div>
-
-            <!-- Setup -->
-            <div class="setup-block reveal">
-                <h3 style="color: var(--blue); margin-bottom: 0.75rem;">環境セットアップ</h3>
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
-                    下のスクリプトをコピーして実行すると、練習用の git リポジトリが自動作成されます。
-                    複数ブランチ・コンフリクト・push 済みブランチなど、全演習の素材が含まれます。
-                </p>
-                <div class="command-block" id="setupScript">
-                    <button class="copy-btn" onclick="copySetupScript()">Copy</button>
-<span class="comment"># 練習用ディレクトリを作成して移動</span>
-<span class="prompt">$</span> mkdir -p /tmp/rebase-practice && cd /tmp/rebase-practice
-<span class="prompt">$</span> git init
-
-<span class="comment"># === main ブランチの履歴 ===</span>
-<span class="prompt">$</span> cat > app.py &lt;&lt;'EOF'
-def greet(name):
-    return f"Hello, {name}!"
-
-if __name__ == "__main__":
-    print(greet("World"))
-EOF
-<span class="prompt">$</span> git add app.py && git commit -m "feat: add greet function"
-
-<span class="prompt">$</span> cat > utils.py &lt;&lt;'EOF'
-def validate_name(name):
-    if not name or not isinstance(name, str):
-        raise ValueError("Name must be a non-empty string")
-    return name.strip()
-EOF
-<span class="prompt">$</span> git add utils.py && git commit -m "feat: add validate_name utility"
-
-<span class="comment"># main を進める（validate_name を統合）</span>
-<span class="prompt">$</span> cat > app.py &lt;&lt;'EOF'
-from utils import validate_name
-
-def greet(name):
-    validated = validate_name(name)
-    return f"Hello, {validated}!"
-
-if __name__ == "__main__":
-    print(greet("World"))
-EOF
-<span class="prompt">$</span> git add app.py && git commit -m "refactor: integrate validate_name into greet"
-
-<span class="comment"># === feature/add-farewell（Exercise 1 用）===</span>
-<span class="prompt">$</span> BRANCH_POINT=$(git log --oneline | tail -2 | head -1 | awk '{print $1}')
-<span class="prompt">$</span> git checkout -b feature/add-farewell "$BRANCH_POINT"
-<span class="prompt">$</span> cat >> app.py &lt;&lt;'EOF'
-
-def farewell(name):
-    return f"Goodbye, {name}!"
-EOF
-<span class="prompt">$</span> git add app.py && git commit -m "feat: add farewell function"
-<span class="prompt">$</span> cat > tests.py &lt;&lt;'EOF'
-from app import greet, farewell
-
-def test_greet():
-    assert greet("Alice") == "Hello, Alice!"
-
-def test_farewell():
-    assert farewell("Alice") == "Goodbye, Alice!"
-
-if __name__ == "__main__":
-    test_greet()
-    test_farewell()
-    print("All tests passed!")
-EOF
-<span class="prompt">$</span> git add tests.py && git commit -m "test: add tests for greet and farewell"
-
-<span class="comment"># === feature/add-logger（Exercise 2 用: squash 練習）===</span>
-<span class="prompt">$</span> git checkout main
-<span class="prompt">$</span> git checkout -b feature/add-logger
-<span class="prompt">$</span> cat > logger.py &lt;&lt;'EOF'
-import datetime
-
-def log(message):
-    timestamp = datetime.datetime.now().isoformat()
-    return f"[{timestamp}] {message}"
-
-def log_greet(name):
-    return log(f"Greeted {name}")
-EOF
-<span class="prompt">$</span> git add logger.py && git commit -m "feat: add logger module"
-
-<span class="prompt">$</span> cat > logger.py &lt;&lt;'EOF'
-import datetime
-
-def log(message, level="INFO"):
-    timestamp = datetime.datetime.now().isoformat()
-    return f"[{timestamp}] [{level}] {message}"
-
-def log_greet(name):
-    return log(f"Greeted {name}")
-EOF
-<span class="prompt">$</span> git add logger.py && git commit -m "fix: add level parameter to log"
-
-<span class="prompt">$</span> cat >> logger.py &lt;&lt;'EOF'
-
-def log_error(message):
-    return log(message, level="ERROR")
-EOF
-<span class="prompt">$</span> git add logger.py && git commit -m "feat: add log_error function"
-
-<span class="comment"># === main にさらにコミット追加 ===</span>
-<span class="prompt">$</span> git checkout main
-<span class="prompt">$</span> cat > config.py &lt;&lt;'EOF'
-DEFAULT_GREETING = "Hello"
-DEFAULT_FAREWELL = "Goodbye"
-EOF
-<span class="prompt">$</span> git add config.py && git commit -m "feat: add config module with defaults"
-
-<span class="prompt">$</span> cat > app.py &lt;&lt;'EOF'
-from utils import validate_name
-from config import DEFAULT_GREETING
-
-def greet(name, greeting=None):
-    validated = validate_name(name)
-    g = greeting or DEFAULT_GREETING
-    return f"{g}, {validated}!"
-
-if __name__ == "__main__":
-    print(greet("World"))
-EOF
-<span class="prompt">$</span> git add app.py && git commit -m "refactor: use config defaults in greet"
-
-<span class="comment"># === feature/conflict-demo（Exercise 4 用）===</span>
-<span class="prompt">$</span> CONFIG_BEFORE=$(git log --oneline | tail -4 | head -1 | awk '{print $1}')
-<span class="prompt">$</span> git checkout -b feature/conflict-demo "$CONFIG_BEFORE"
-<span class="prompt">$</span> cat > config.py &lt;&lt;'EOF'
-GREETING_PREFIX = "Hi"
-FAREWELL_PREFIX = "Bye"
-MAX_NAME_LENGTH = 50
-EOF
-<span class="prompt">$</span> git add config.py && git commit -m "feat: add config with different naming"
-<span class="prompt">$</span> cat >> config.py &lt;&lt;'EOF'
-
-DEBUG_MODE = False
-EOF
-<span class="prompt">$</span> git add config.py && git commit -m "feat: add debug mode to config"
-
-<span class="prompt">$</span> git checkout main
-<span class="prompt">$</span> echo "Setup complete! Ready for exercises."
-<span class="prompt">$</span> git log --oneline --graph --all
-                </div>
-            </div>
-
-            <!-- ===== Exercise 1 ===== -->
-            <div class="exercise-card reveal" id="exercise1">
-                <span class="exercise-badge basic">Basic</span>
-                <h4 style="color: var(--green);">Exercise 1: 基本の rebase &mdash; 遅れたブランチを最新化</h4>
-
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
-                    <code>feature/add-farewell</code> は古いコミットから分岐しています。
-                    main が先に進んだので、rebase でブランチの起点を最新の main に移動します。
-                </p>
-
-                <ol class="exercise-steps">
-                    <li>まず現状を確認する</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git log --oneline --graph --all
-<span class="prompt">$</span> git checkout feature/add-farewell
-<span class="prompt">$</span> git log --oneline
-<span class="comment"># feature のコミットハッシュをメモしておく</span>
-                </div>
-
-                <ol class="exercise-steps" start="2">
-                    <li>rebase を実行する</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git rebase main
-                </div>
-
-                <ol class="exercise-steps" start="3">
-                    <li>結果を確認する</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git log --oneline --graph --all
-<span class="prompt">$</span> git log --oneline
-<span class="comment"># コミットハッシュが変わっていることを確認</span>
-                </div>
-
-                <div class="check-point">
-                    <strong>理解チェック:</strong> コミットハッシュが変わったのはなぜ？
-                    変更内容（diff）は同じなのに、ハッシュが異なる理由を「親ポインタ」の観点で考えてみてください。
-                </div>
-
-                <div style="margin-top: 1rem;">
-                    <textarea class="answer-area" id="ex1Check" placeholder="コミットハッシュが変わる理由を書いてみてください..." style="min-height: 60px;"></textarea>
-                    <button class="submit-btn" onclick="checkExercise(1)">確認する</button>
-                    <div class="feedback-panel" id="ex1Feedback">
-                        <div class="feedback-phase elaborated">
-                            <strong>解説:</strong> Git のコミットハッシュ（SHA-1）は、変更内容だけでなく「親コミットのハッシュ」も含めて計算されます。
-                            rebase で親が変わる（古い main → 新しい main の先頭）ため、同じ diff でもハッシュが変わります。
-                            これが「rebase は履歴を書き換える」と言われる理由です。
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ===== Exercise 2 ===== -->
-            <div class="exercise-card reveal" id="exercise2">
-                <span class="exercise-badge intermediate">Intermediate</span>
-                <h4 style="color: var(--yellow);">Exercise 2: interactive rebase &mdash; コミットを squash で整理</h4>
-
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
-                    <code>feature/add-logger</code> には 3 つのコミットがありますが、
-                    最初の 2 つ（logger 追加 + level パラメータ追加）は本来 1 つにまとめるべきです。
-                </p>
-
-                <ol class="exercise-steps">
-                    <li>ブランチに切り替えて現状確認</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git checkout feature/add-logger
-<span class="prompt">$</span> git log --oneline
-<span class="output">aaa1234 feat: add log_error function</span>
-<span class="output">bbb5678 fix: add level parameter to log</span>
-<span class="output">ccc9012 feat: add logger module</span>
-                </div>
-
-                <ol class="exercise-steps" start="2">
-                    <li>直近 3 コミットを interactive rebase</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git rebase -i HEAD~3
-<span class="comment"># エディタが開いたら、2行目の "pick" を "squash"（または "s"）に変更：</span>
-<span class="comment">#   pick ccc9012 feat: add logger module</span>
-<span class="comment">#   squash bbb5678 fix: add level parameter to log    ← ここを変更</span>
-<span class="comment">#   pick aaa1234 feat: add log_error function</span>
-<span class="comment"># 保存して閉じる → コミットメッセージを整理して保存</span>
-                </div>
-
-                <ol class="exercise-steps" start="3">
-                    <li>結果を確認</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git log --oneline
-<span class="comment"># 3 つ → 2 つのコミットに整理されている</span>
-                </div>
-
-                <div class="check-point">
-                    <strong>理解チェック:</strong> squash は「前のコミットに吸収」します。
-                    では、もし 1 行目（一番古いコミット）を squash にしたらどうなるでしょうか？
-                </div>
-
-                <div style="margin-top: 1rem;">
-                    <textarea class="answer-area" id="ex2Check" placeholder="1行目を squash にしたらどうなる？" style="min-height: 60px;"></textarea>
-                    <button class="submit-btn" onclick="checkExercise(2)">確認する</button>
-                    <div class="feedback-panel" id="ex2Feedback">
-                        <div class="feedback-phase elaborated">
-                            <strong>解説:</strong> エラーになります。squash は「直前のコミットに吸収」する操作なので、
-                            1 行目（最も古いコミット）には「吸収先」がありません。
-                            Git は <code>error: cannot 'squash' without a previous commit</code> と返します。
-                            これは interactive rebase のリストが「古い順」に並んでいることの理解が鍵です。
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ===== Exercise 3 ===== -->
-            <div class="exercise-card reveal" id="exercise3">
-                <span class="exercise-badge basic">Basic</span>
-                <h4 style="color: var(--green);">Exercise 3: rebase で main に追従（Exercise 2 の続き）</h4>
-
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
-                    Exercise 2 でコミットを整理した <code>feature/add-logger</code> を、
-                    最新の main に rebase します。
-                </p>
-
-                <div class="command-block">
-<span class="prompt">$</span> git log --oneline --graph feature/add-logger main
-<span class="comment"># まだ古い main から分岐していることを確認</span>
-<span class="prompt">$</span> git rebase main
-<span class="prompt">$</span> git log --oneline --graph --all
-<span class="comment"># feature/add-logger が main の先頭から生えている</span>
-                </div>
-
-                <div class="check-point">
-                    <strong>確認:</strong> <code>git log --oneline --graph --all</code> で一直線になっていれば成功です。
-                </div>
-
-                <div style="margin-top: 1rem;">
-                    <button class="submit-btn" onclick="checkExercise(3)" style="background: var(--green);">完了</button>
-                </div>
-            </div>
-
-            <!-- ===== Exercise 4 ===== -->
-            <div class="exercise-card reveal" id="exercise4">
-                <span class="exercise-badge advanced">Advanced</span>
-                <h4 style="color: var(--red);">Exercise 4: コンフリクトを伴う rebase</h4>
-
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
-                    <code>feature/conflict-demo</code> と <code>main</code> は両方とも
-                    <code>config.py</code> を作成していますが、内容が異なります。rebase するとコンフリクトが発生します。
-                </p>
-
-                <ol class="exercise-steps">
-                    <li>ブランチに切り替えて diff を確認</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git checkout feature/conflict-demo
-<span class="prompt">$</span> git diff main -- config.py
-                </div>
-
-                <ol class="exercise-steps" start="2">
-                    <li>rebase を実行（コンフリクト発生！）</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git rebase main
-<span class="output">CONFLICT (add/add): Merge conflict in config.py</span>
-<span class="output">error: could not apply xxxxxxx</span>
-                </div>
-
-                <ol class="exercise-steps" start="3">
-                    <li>コンフリクトを解消する</li>
-                </ol>
-                <div class="command-block">
-<span class="comment"># コンフリクト箇所を確認</span>
-<span class="prompt">$</span> cat config.py
-<span class="comment"># &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD (main の内容) と ======= と &gt;&gt;&gt;&gt;&gt;&gt;&gt; (feature の内容) を確認</span>
-<span class="comment"># エディタで config.py を開き、両方の変更を統合する</span>
-<span class="comment"># 例: main の命名を採用しつつ MAX_NAME_LENGTH も追加</span>
-<span class="prompt">$</span> git add config.py
-<span class="prompt">$</span> git rebase --continue
-<span class="comment"># 2つ目のコミットでもコンフリクトが出たら同様に解消</span>
-                </div>
-
-                <div class="warning-box">
-                    <strong>途中でやり直したくなったら:</strong>
-                    <code>git rebase --abort</code> で rebase 開始前の状態に完全に戻れます。安心して試行錯誤してください。
-                </div>
-
-                <div class="check-point">
-                    <strong>理解チェック:</strong> merge のコンフリクト解消は 1 回で済みますが、
-                    rebase では複数回コンフリクトが発生しました。なぜ？
-                </div>
-
-                <div style="margin-top: 1rem;">
-                    <textarea class="answer-area" id="ex4Check" placeholder="rebase でコンフリクトが複数回起きる理由は？" style="min-height: 60px;"></textarea>
-                    <button class="submit-btn" onclick="checkExercise(4)">確認する</button>
-                    <div class="feedback-panel" id="ex4Feedback">
-                        <div class="feedback-phase elaborated">
-                            <strong>解説:</strong> rebase は各コミットを 1 つずつ順に再適用します。
-                            feature ブランチに 2 つのコミットがあれば、それぞれの再適用時にコンフリクトが起きる可能性があります。
-                            merge は「最終状態同士」を 1 回だけ比較するので、コンフリクト解消も 1 回です。
-                            これは rebase の「コミット単位の再適用」という本質に直結しています。
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ===== Exercise 5 ===== -->
-            <div class="exercise-card reveal" id="exercise5">
-                <span class="exercise-badge compare">Compare</span>
-                <h4 style="color: var(--purple);">Exercise 5: merge と rebase の違いを体感する</h4>
-
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
-                    <strong>同じ操作を merge と rebase の両方でやって、結果の違いを目で確認する</strong>のが最も効果的な学び方です。
-                </p>
-
-                <ol class="exercise-steps">
-                    <li>比較用のブランチを準備</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git checkout main
-
-<span class="comment"># テスト用ブランチを作成</span>
-<span class="prompt">$</span> git checkout -b experiment/merge-test
-<span class="prompt">$</span> echo "merge test" > merge-test.txt
-<span class="prompt">$</span> git add merge-test.txt && git commit -m "feat: merge test file"
-
-<span class="comment"># main を進める</span>
-<span class="prompt">$</span> git checkout main
-<span class="prompt">$</span> echo "main progress" > main-progress.txt
-<span class="prompt">$</span> git add main-progress.txt && git commit -m "feat: main progress"
-                </div>
-
-                <ol class="exercise-steps" start="2">
-                    <li>A) merge でやる</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git checkout experiment/merge-test
-<span class="prompt">$</span> git merge main
-<span class="prompt">$</span> git log --oneline --graph
-<span class="comment"># → マージコミットができ、履歴が分岐→合流する形に</span>
-                </div>
-
-                <ol class="exercise-steps" start="3">
-                    <li>B) rebase でやる（merge を元に戻してから）</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git reset --hard HEAD~1
-<span class="comment"># merge を取り消し</span>
-<span class="prompt">$</span> git rebase main
-<span class="prompt">$</span> git log --oneline --graph
-<span class="comment"># → マージコミットなし、一直線の履歴に</span>
-                </div>
-
-                <h4 style="color: var(--purple); margin-top: 1.5rem; font-size: 1rem;">比較表</h4>
-                <table class="comparison-table">
-                    <thead>
-                        <tr><th></th><th style="color: var(--cyan);">merge</th><th style="color: var(--orange);">rebase</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>履歴の形</td><td>分岐 → 合流</td><td>一直線</td></tr>
-                        <tr><td>コミットハッシュ</td><td>変わらない</td><td>変わる（新規コミット）</td></tr>
-                        <tr><td>マージコミット</td><td>作られる</td><td>作られない</td></tr>
-                        <tr><td>push 済みでも安全？</td><td style="color: var(--green);">安全</td><td style="color: var(--red);">危険</td></tr>
-                        <tr><td>使いどころ</td><td>共有ブランチの統合</td><td>ローカルの整理、PR 前の更新</td></tr>
-                    </tbody>
-                </table>
-
-                <div class="check-point">
-                    <strong>理解チェック:</strong> 「rebase の方がきれいだから常に rebase を使うべき」は正しい？
-                    どんな状況で merge を選ぶべきか、そしてその理由を考えてみてください。
-                </div>
-
-                <div style="margin-top: 1rem;">
-                    <textarea class="answer-area" id="ex5Check" placeholder="常に rebase を使うべき？ merge を選ぶべき状況は？" style="min-height: 80px;"></textarea>
-                    <button class="submit-btn" onclick="checkExercise(5)">確認する</button>
-                    <div class="feedback-panel" id="ex5Feedback">
-                        <div class="feedback-phase elaborated">
-                            <strong>解説:</strong> 正しくありません。rebase は「履歴を書き換える」ため、
-                            <strong>既に push して他の人と共有しているブランチ</strong>では使うべきではありません。
-                            他の開発者のローカル履歴と矛盾が生じ、作業が失われる可能性があります。<br><br>
-                            merge を選ぶべき状況:<br>
-                            &bull; feature ブランチを main に統合する最終段階（PR マージ）<br>
-                            &bull; 複数人で作業している共有ブランチ<br>
-                            &bull; 「いつ、何が統合されたか」の記録を残したいとき<br><br>
-                            rebase を選ぶべき状況:<br>
-                            &bull; ローカルの feature ブランチを main の最新に追従させる<br>
-                            &bull; PR 前にコミット履歴を整理する（interactive rebase）<br>
-                            &bull; まだ push していない自分だけのコミットを整理する
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ===== Exercise 6 ===== -->
-            <div class="exercise-card reveal" id="exercise6">
-                <span class="exercise-badge advanced">Advanced</span>
-                <h4 style="color: var(--red);">Exercise 6: push 済みブランチの rebase がなぜ危険か</h4>
-
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
-                    「push 済みのブランチを rebase してはいけない」と言われる理由を、実際に体験します。
-                </p>
-
-                <ol class="exercise-steps">
-                    <li>ローカルに「リモート」を模倣して push する</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git checkout main
-<span class="prompt">$</span> git clone --bare . /tmp/rebase-practice-remote.git
-<span class="prompt">$</span> git remote add origin /tmp/rebase-practice-remote.git
-
-<span class="prompt">$</span> git checkout -b feature/shared-work
-<span class="prompt">$</span> echo "shared work" > shared.txt
-<span class="prompt">$</span> git add shared.txt && git commit -m "feat: shared work"
-<span class="prompt">$</span> git push -u origin feature/shared-work
-
-<span class="comment"># 「他の人の作業」を模倣: main にコミット追加</span>
-<span class="prompt">$</span> git checkout main
-<span class="prompt">$</span> echo "someone else's work" > others.txt
-<span class="prompt">$</span> git add others.txt && git commit -m "feat: someone else's work"
-<span class="prompt">$</span> git push origin main
-                </div>
-
-                <ol class="exercise-steps" start="2">
-                    <li>push 済みのブランチを rebase してみる</li>
-                </ol>
-                <div class="command-block">
-<span class="prompt">$</span> git checkout feature/shared-work
-<span class="prompt">$</span> git rebase main
-
-<span class="comment"># push しようとすると...</span>
-<span class="prompt">$</span> git push
-<span class="output">! [rejected]  feature/shared-work -> feature/shared-work (non-fast-forward)</span>
-<span class="output">error: failed to push some refs</span>
-                </div>
-
-                <div class="warning-box">
-                    <strong>ここで <code>git push --force</code> すると何が起きるか？</strong><br>
-                    リモートの履歴が書き換わり、他の開発者が pull していた旧コミットとの整合性が壊れます。
-                    最悪の場合、他の人の作業が消えます。
-                </div>
-
-                <ol class="exercise-steps" start="3">
-                    <li>安全な代替手段</li>
-                </ol>
-                <div class="command-block">
-<span class="comment"># 選択肢A: --force-with-lease（他の人が push していたら拒否される）</span>
-<span class="prompt">$</span> git push --force-with-lease
-
-<span class="comment"># 選択肢B: rebase を取り消して merge を使う</span>
-<span class="prompt">$</span> git reset --hard origin/feature/shared-work
-<span class="prompt">$</span> git merge main
-                </div>
-
-                <div class="check-point">
-                    <strong>理解チェック:</strong> <code>--force-with-lease</code> は <code>--force</code> とどう違いますか？
-                    「安全」と言われる理由を考えてみてください。
-                </div>
-
-                <div style="margin-top: 1rem;">
-                    <textarea class="answer-area" id="ex6Check" placeholder="--force-with-lease が --force より安全な理由は？" style="min-height: 60px;"></textarea>
-                    <button class="submit-btn" onclick="checkExercise(6)">確認する</button>
-                    <div class="feedback-panel" id="ex6Feedback">
-                        <div class="feedback-phase elaborated">
-                            <strong>解説:</strong> <code>--force</code> は無条件にリモートを上書きします。
-                            <code>--force-with-lease</code> は「自分が最後に fetch した時点のリモートの状態」を基準に、
-                            <strong>他の誰かがその間に push していたら拒否</strong>します。<br><br>
-                            つまり <code>--force-with-lease</code> は「自分だけが作業しているブランチなら安全に force push できる」ための安全装置です。
-                            他の開発者が push した変更を意図せず消してしまうリスクを防げます。
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ===== Cleanup ===== -->
-            <div class="exercise-card reveal" style="border-color: var(--text-muted);">
-                <h4 style="color: var(--text-muted);">片付け</h4>
-                <div class="command-block">
-<span class="prompt">$</span> rm -rf /tmp/rebase-practice /tmp/rebase-practice-remote.git
-                </div>
-            </div>
-
-            <!-- Summary -->
-            <div class="card reveal" style="border-color: var(--border-accent);">
-                <h3 style="color: var(--blue); margin-bottom: 1rem;">使い分けまとめ</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div style="background: var(--bg-tertiary); border-radius: 10px; padding: 1rem;">
-                        <h4 style="color: var(--green); font-size: 0.9rem; margin-bottom: 0.5rem;">rebase を使う場面</h4>
-                        <ul style="color: var(--text-secondary); font-size: 0.85rem; padding-left: 1rem; margin: 0;">
-                            <li>ローカル feature ブランチを main の最新に追従</li>
-                            <li>PR 前にコミット履歴を整理</li>
-                            <li>まだ push していないコミットを整理</li>
-                        </ul>
-                    </div>
-                    <div style="background: var(--bg-tertiary); border-radius: 10px; padding: 1rem;">
-                        <h4 style="color: var(--cyan); font-size: 0.9rem; margin-bottom: 0.5rem;">merge を使う場面</h4>
-                        <ul style="color: var(--text-secondary); font-size: 0.85rem; padding-left: 1rem; margin: 0;">
-                            <li>feature ブランチを main に統合（PR マージ）</li>
-                            <li>共有ブランチに変更を取り込む</li>
-                            <li>統合の記録を残したいとき</li>
-                        </ul>
-                    </div>
-                </div>
-                <div style="margin-top: 1rem; background: rgba(247, 118, 142, 0.06); border: 1px solid rgba(247, 118, 142, 0.2); border-radius: 8px; padding: 0.75rem 1rem;">
-                    <strong style="color: var(--red);">絶対にやらない:</strong>
-                    <span style="color: var(--text-secondary); font-size: 0.85rem;">push 済みの共有ブランチを rebase / main ブランチを rebase</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- ============================================
-             NEXT STEPS
-             ============================================ -->
-        <div class="next-steps reveal">
-            <h3>次のステップ</h3>
-            <ul style="margin-top: 0.75rem; padding-left: 1.25rem; color: var(--text-secondary);">
-                <li>1日後にもう一度このページを開いて、テスト部分だけやり直してみてください（スペーシング効果）</li>
-                <li>1週間後にもう一度。前回と比較して、どこが定着し、どこが忘れかけているかを確認</li>
-                <li>学んだ内容を誰かに説明してみてください（プロテジェ効果）</li>
-                <li>上のハンズオンを全て完了していなければ、ぜひ全演習を通してみてください</li>
-            </ul>
-        </div>
-
-    </div>
-
-    <script>
-    // === STATE ===
-    const state = {
-        calibration: { pre: null, mid: null, post: null },
-        whyStep: 1
-    };
-
-    // === PROGRESS BAR ===
-    window.addEventListener('scroll', () => {
-        const h = document.documentElement;
-        const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
-        document.getElementById('progressBar').style.width = pct + '%';
-    });
-
-    // === REVEAL ON SCROLL ===
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-    // === CALIBRATION ===
-    function selectCalibration(phase, level) {
-        state.calibration[phase] = level;
-        const container = document.getElementById('calibration' + phase.charAt(0).toUpperCase() + phase.slice(1));
-        container.querySelectorAll('.calibration-option').forEach(opt => {
-            opt.classList.toggle('selected', parseInt(opt.dataset.level) === level);
-        });
-
-        if (phase === 'mid' && state.calibration.pre !== null) {
-            showCalibrationDiff('mid', state.calibration.pre, level);
-        }
-        if (phase === 'post') {
-            showCalibrationSummary();
-        }
+    </header>
+
+    <!-- Content count -->
+    <div class="content-count" id="content-count"></div>
+
+    <!-- Card grid (dynamically populated) -->
+    <div class="card-grid" id="card-grid"></div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        Deep Learn Showcase
+    </footer>
+</div>
+
+<script>
+(function () {
+    const ARROW_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
+
+    function createCard(item) {
+        const a = document.createElement('a');
+        a.href = item.path;
+        a.className = 'card color-' + (item.color || 'blue');
+
+        a.innerHTML =
+            '<div class="card-accent"></div>' +
+            '<div class="card-body">' +
+                '<div class="card-meta">' +
+                    '<span class="card-category">' + escapeHtml(item.category) + '</span>' +
+                    (item.time ? '<span class="card-time">' + escapeHtml(item.time) + '</span>' : '') +
+                '</div>' +
+                '<h3>' + escapeHtml(item.title) + '</h3>' +
+                '<p>' + escapeHtml(item.description) + '</p>' +
+                '<div class="card-arrow">Start Learning ' + ARROW_SVG + '</div>' +
+            '</div>';
+
+        return a;
     }
 
-    function showCalibrationDiff(phase, before, after) {
-        const diff = after - before;
-        const el = document.getElementById('calibrationMidDiff');
-        if (Math.abs(diff) >= 2) {
-            el.innerHTML = '<div class="calibration-diff overconfident">事前評価との乖離が2段階以上あります。流暢性の錯覚（わかったつもり）の可能性があります。これは正常なことです。認識できること自体が学習の証拠です。</div>';
-        } else if (diff < 0) {
-            el.innerHTML = '<div class="calibration-diff underconfident">事前より控えめな評価になりました。説明テストを通じて「わからない部分」が明確になった証拠です。</div>';
-        } else {
-            el.innerHTML = '<div class="calibration-diff well-calibrated">事前評価と大きなズレはありません。自己認識が比較的正確です。</div>';
-        }
+    function escapeHtml(str) {
+        var d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
     }
 
-    function showCalibrationSummary() {
-        const summary = document.getElementById('calibrationSummary');
-        summary.style.display = 'block';
-        const chart = document.getElementById('calChart');
-        const phases = [
-            { key: 'pre', label: '事前', color: 'var(--blue)' },
-            { key: 'mid', label: '中間', color: 'var(--yellow)' },
-            { key: 'post', label: '事後', color: 'var(--green)' }
-        ];
-        chart.innerHTML = phases.map(p => {
-            const val = state.calibration[p.key] || 0;
-            const h = (val / 5) * 160;
-            return '<div class="cal-bar-group">' +
-                '<div class="cal-bar" style="height:' + h + 'px;background:' + p.color + ';width:50px;"></div>' +
-                '<div class="cal-bar-label">' + p.label + '<br>' + val + '/5</div>' +
-                '</div>';
-        }).join('');
-
-        const analysis = document.getElementById('calibrationAnalysis');
-        const pre = state.calibration.pre || 0;
-        const post = state.calibration.post || 0;
-        const mid = state.calibration.mid || 0;
-
-        let msg = '';
-        if (pre > post + 1) {
-            msg = '<div class="calibration-diff overconfident">事前は自信があったのに、テスト後に下がりました。これは「流暢性の錯覚」が解消された良い兆候です。実際の理解度をより正確に把握できるようになりました。</div>';
-        } else if (post > pre + 1) {
-            msg = '<div class="calibration-diff underconfident">テストを通じて自信が上がりました。実際に使ってみることで理解が深まった証拠です。</div>';
-        } else if (pre >= 4 && mid < pre) {
-            msg = '<div class="calibration-diff well-calibrated">説明テストで一度自信が下がり、その後テストを通じて再評価しました。このパターンは健全な学習プロセスです。</div>';
-        } else {
-            msg = '<div class="calibration-diff well-calibrated">自己評価が比較的安定しています。自分の理解度を正確に把握できている可能性が高いです。</div>';
-        }
-        analysis.innerHTML = msg;
-    }
-
-    // === EXPLANATION TEST (3-Layer Feedback) ===
-    function submitExplanation() {
-        const answer = document.getElementById('explanationAnswer').value.trim();
-        if (!answer) return;
-
-        const btn = document.querySelector('#explanationTest .submit-btn');
-        btn.disabled = true;
-
-        // Phase 1: Immediate acknowledge
-        const feedback = document.getElementById('explanationFeedback');
-        feedback.classList.add('visible');
-        document.getElementById('expPhase1').style.display = 'block';
-
-        // Phase 2: Review prompt (after 15 seconds)
-        setTimeout(() => {
-            document.getElementById('expPhase2').style.display = 'block';
-        }, 15000);
-
-        // Phase 3: Elaborated feedback (after 30 seconds)
-        setTimeout(() => {
-            document.getElementById('expPhase3').style.display = 'block';
-        }, 30000);
-    }
-
-    // === WHY x3 TEST ===
-    const whyModelAnswers = [
-        { level: 'メカニズム', answer: 'Rebaseは既存のパッチを新しい基準点に再適用するため、コミットのメタデータ（日付、親ポインタ）が変わります。これによってSHA-1ハッシュが変わり、技術的には「新しい」コミットになります。' },
-        { level: '条件と背景', answer: 'Gitの設計では、コミットのSHA-1はそのコミットの内容＋メタデータすべてから生成されます。基準点（親ポインタ）が変わると、同じ変更内容でもハッシュが異なります。この不変性がGitの整合性を保証しています。' },
-        { level: '根本原理', answer: 'Gitはコンテンツアドレッシング方式を採用しています。データの内容そのものがそのデータを一意に識別します。この設計により、履歴の改編検出と検証が可能になり、分散協調作業の基盤が成立します。' }
-    ];
-
-    function submitWhy(step) {
-        const answer = document.getElementById('whyAnswer' + step).value.trim();
-        if (!answer) return;
-
-        // Mark current step as completed
-        document.getElementById('whyStep' + step).classList.remove('active');
-        document.getElementById('whyStep' + step).classList.add('completed');
-
-        // Unlock next step
-        if (step < 3) {
-            const next = document.getElementById('whyStep' + (step + 1));
-            next.classList.remove('locked');
-            next.classList.add('active');
-        }
-
-        // Show feedback for final step
-        if (step === 3) {
-            const fb = document.getElementById('whyFeedback3');
-            fb.innerHTML = whyModelAnswers.map(m =>
-                '<div class="feedback-phase elaborated" style="display:block;">' +
-                '<strong>' + m.level + ':</strong> ' + m.answer +
-                '</div>'
-            ).join('');
-            fb.classList.add('visible');
-        }
-    }
-
-    // === WHAT-IF TEST ===
-    function revealWhatIf(level) {
-        const card = document.getElementById('whatif' + level);
-        const textarea = card.querySelector('.answer-area');
-        if (!textarea.value.trim()) return;
-        card.querySelector('.submit-btn').disabled = true;
-        document.getElementById('whatifAnswer' + level).classList.add('visible');
-        document.getElementById('whatifAnswer' + level).style.display = 'block';
-    }
-
-    // === TRANSFER TEST ===
-    function revealTransfer(level) {
-        const card = event.target.closest('.card');
-        const textarea = card.querySelector('.answer-area');
-        if (!textarea.value.trim()) return;
-        card.querySelector('.submit-btn').disabled = true;
-        const feedbackId = 'transfer' + level.charAt(0).toUpperCase() + level.slice(1) + 'Feedback';
-        document.getElementById(feedbackId).classList.add('visible');
-    }
-
-    // === HANDS-ON LAB ===
-    const exerciseState = {};
-
-    function checkExercise(num) {
-        const feedbackEl = document.getElementById('ex' + num + 'Feedback');
-        if (feedbackEl) {
-            feedbackEl.classList.add('visible');
-        }
-        exerciseState[num] = true;
-        const dot = document.getElementById('exDot' + num);
-        if (dot) dot.classList.add('done');
-
-        // Disable the button
-        const card = document.getElementById('exercise' + num);
-        if (card) {
-            const btns = card.querySelectorAll('.submit-btn');
-            btns.forEach(b => b.disabled = true);
-        }
-    }
-
-    function scrollToExercise(num) {
-        const el = document.getElementById('exercise' + num);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    function copySetupScript() {
-        const block = document.getElementById('setupScript');
-        // Extract just the command text (lines starting with $)
-        const lines = block.innerText.split('\n');
-        const commands = lines
-            .filter(l => l.trim().startsWith('$'))
-            .map(l => l.trim().replace(/^\$\s*/, ''))
-            .join('\n');
-        navigator.clipboard.writeText(commands).then(() => {
-            const btn = block.querySelector('.copy-btn');
-            btn.textContent = 'Copied!';
-            btn.classList.add('copied');
-            setTimeout(() => {
-                btn.textContent = 'Copy';
-                btn.classList.remove('copied');
-            }, 2000);
+    function animateCards() {
+        var cards = document.querySelectorAll('.card');
+        cards.forEach(function (card, i) {
+            setTimeout(function () {
+                card.classList.add('visible');
+            }, 100 + i * 80);
         });
     }
-    </script>
+
+    function render(items) {
+        var grid = document.getElementById('card-grid');
+        var count = document.getElementById('content-count');
+
+        if (!items || items.length === 0) {
+            grid.innerHTML = '<div class="empty-state"><p>コンテンツはまだありません</p></div>';
+            return;
+        }
+
+        count.innerHTML = '<strong>' + items.length + '</strong> contents available';
+
+        items.forEach(function (item) {
+            grid.appendChild(createCard(item));
+        });
+
+        requestAnimationFrame(animateCards);
+    }
+
+    fetch('contents.json')
+        .then(function (res) { return res.json(); })
+        .then(render)
+        .catch(function () {
+            document.getElementById('card-grid').innerHTML =
+                '<div class="empty-state"><p>コンテンツの読み込みに失敗しました</p></div>';
+        });
+})();
+</script>
+
 </body>
 </html>

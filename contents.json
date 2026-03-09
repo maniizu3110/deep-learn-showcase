@@ -1,0 +1,11 @@
+[
+  {
+    "id": "git-rebase",
+    "title": "Git Rebase",
+    "description": "チーム開発でブランチ履歴を整理できるようになる",
+    "category": "Git",
+    "color": "blue",
+    "time": "45-50min",
+    "path": "contents/git-rebase/index.html"
+  }
+]
