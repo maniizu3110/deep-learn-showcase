@@ -7,5 +7,14 @@
     "color": "blue",
     "time": "45-50min",
     "path": "contents/git-rebase/index.html"
+  },
+  {
+    "id": "claude-code-loop",
+    "title": "Claude Code /loop コマンド",
+    "description": "繰り返し実行で自律的な開発ワークフローを構築する",
+    "category": "Claude Code",
+    "color": "purple",
+    "time": "30-40min",
+    "path": "contents/claude-code-loop/index.html"
   }
 ]
